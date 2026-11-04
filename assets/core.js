@@ -98,7 +98,8 @@
     const originCode = input.originCode || (v && v.origin) || "JP";
     const origin = d.origins.find((c) => c.code === originCode) || d.origins[0];
     const rule = (d.taxRules.find((r) => r.country === dest.code && r.origin === originCode) || d.taxRules.find((r) => r.country === dest.code) || null);
-    const ship = input.shipping === "air" ? origin.air : origin.sea;
+    const freightUsd = input.shipping === "air" ? origin.air : origin.sea;
+    const inspectionPct = origin.inspectionPct || 0.02;
     const price = Number(input.price || (v && v.priceUsd) || 0);
     const engineCc = Number(input.engineCc || (v && v.engineCc) || 1500);
     const amount = Number(input.vehiclePrice || 0);
@@ -107,10 +108,10 @@
     const add = (label, usd, note) => lines.push({ label, usd: Math.round(usd * 100) / 100, note: note || "" });
 
     add("Vehicle purchase price", amount || 100, "Supplier invoice price");
-    add("Supplier and inspection fee", (amount || 100) * (ship.inspectionPct || 0.02), "Third-party inspection");
+    add("Supplier and inspection fee", (amount || 100) * inspectionPct, "Third-party inspection");
     add("Export documentation", origin.docs, "Export certificate, invoice, bill of lading prep");
     add("Inland transport to port", origin.inland, "Moved from supplier to export port");
-    add("Ocean or air freight", input.shipping === "air" ? ship.air : ship.sea, input.shipping === "air" ? "Air freight" : "Sea freight to " + dest.port);
+    add("Ocean or air freight", freightUsd, input.shipping === "air" ? "Air freight to " + dest.port : "Sea freight to " + dest.port);
     add("Marine insurance", (amount || 100) * 0.015, "1.5% of vehicle value");
     const cif = lines.reduce((s, l) => s + l.usd, 0);
     const duty = rule ? cif * (rule.dutyPct / 100) : 0;

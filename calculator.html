@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Import calculator — GLOBAL AUTO DIRECT</title>
+<meta name="description" content="Calculate the full landed cost: vehicle price, fees, freight, insurance, customs duty, excise, VAT, clearance and delivery by destination country.">
+<meta property="og:title" content="Import calculator — GLOBAL AUTO DIRECT">
+<meta property="og:description" content="Calculate the full landed cost: vehicle price, fees, freight, insurance, customs duty, excise, VAT, clearance and delivery by destination country.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="block" style="padding-top:34px"><div class="wrap">
+  <span class="eyebrow">Import calculator</span>
+  <h1 style="font-size:clamp(1.9rem,4vw,2.9rem)">Know the full landed cost before you commit</h1>
+  <p style="max-width:74ch">Thirteen cost lines, calculated from the destination country's own duty, excise and VAT rules. Choose a vehicle or enter your own price.</p>
+  <div class="notice">These are estimates. Import duties change and vehicles must meet age and drive-side rules. A licensed clearing agent in your destination country must confirm the final figures before we issue a binding quotation.</div>
+  <div class="calc">
+    <div class="card">
+      <div class="form-grid">
+        <div><label class="f">Vehicle</label><select id="cvehicle"></select></div>
+        <div><label class="f">Origin country</label><select id="corigin"></select></div>
+        <div><label class="f">Destination country</label><select id="cdest"></select></div>
+        <div><label class="f">Destination port or city</label><input id="ccity" placeholder="Kampala"></div>
+        <div><label class="f">Shipping method</label><select id="cship"><option value="sea">Sea freight (cheaper)</option><option value="air">Air freight (faster)</option></select></div>
+        <div><label class="f">Delivery preference</label><select id="cdel"><option>To my city</option><option>Collect at port</option><option>Deliver to a garage</option></select></div>
+        <div><label class="f">Vehicle price (USD)</label><input id="cprice" type="number" min="0" step="100"></div>
+        <div><label class="f">Engine size (cc)</label><input id="ccc" type="number" min="0" step="100"></div>
+        <div><label class="f">Currency</label><select id="ccur"></select></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h3 style="margin-top:0">Cost breakdown</h3>
+        <ul class="breakdown" id="lines"></ul>
+        <div id="warn"></div>
+        <button class="btn primary block" id="cgo" style="margin-top:14px">Use these figures in a quotation request</button>
+      </div>
+      <div class="card"><h3 style="margin-top:0">Rule in force</h3><div class="small" id="rulenote"></div></div>
+    </div>
+  </div>
+</div></section>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+(function () {
+  const G = window.GAD;
+  G.mount("calculator.html");
+  const d = G.db();
+  const veh = document.getElementById("cvehicle");
+  veh.innerHTML = `<option value="">Enter my own vehicle price</option>` + d.vehicles.map(v => `<option value="${v.id}">${G.esc(v.title)} — ${G.price(v.priceUsd)}</option>`).join("");
+  document.getElementById("corigin").innerHTML = d.origins.map(o => `<option value="${o.code}">${o.flag} ${o.name}</option>`).join("");
+  document.getElementById("cdest").innerHTML = d.countries.map(c => `<option value="${c.code}">${c.flag} ${c.name}${c.verified ? "" : " (rates unverified)"}</option>`).join("");
+  document.getElementById("ccur").innerHTML = Object.keys(d.currencies).map(c => `<option>${c}</option>`).join("");
+  document.getElementById("ccur").value = G.cur();
+
+  const setFromVehicle = () => {
+    const v = d.vehicles.find(x => x.id === veh.value);
+    if (!v) return;
+    document.getElementById("cprice").value = v.priceUsd;
+    document.getElementById("ccc").value = v.engineCc;
+    document.getElementById("corigin").value = v.origin;
+  };
+  if (G.qs("vehicle")) { veh.value = G.qs("vehicle"); setFromVehicle(); }
+  else { veh.value = d.vehicles[0].id; setFromVehicle(); }
+
+  const run = () => {
+    const v = d.vehicles.find(x => x.id === veh.value) || null;
+    const input = {
+      vehicleId: veh.value, vehiclePrice: Number(document.getElementById("cprice").value || 0),
+      engineCc: Number(document.getElementById("ccc").value || 1500),
+      originCode: document.getElementById("corigin").value, destCode: document.getElementById("cdest").value,
+      deliveryCity: document.getElementById("ccity").value || "", shipping: document.getElementById("cship").value,
+      currency: document.getElementById("ccur").value,
+    };
+    const q = G.quote(input);
+    const cur = input.currency;
+    document.getElementById("lines").innerHTML = q.lines.map(l =>
+      `<li><span>${l.label}<div class="small" style="color:#5A708F">${l.note}</div></span><span>${G.money(l.usd, cur)}</span></li>`).join("")
+      + `<li class="total"><span>Estimated landed cost</span><span>${G.money(q.totalUsd, cur)}</span></li>`;
+    document.getElementById("warn").innerHTML = (q.ageWarning ? `<div class="notice">${q.ageWarning}</div>` : "")
+      + (q.rule && q.rule.verified === false ? `<div class="notice">${G.country(q.dest.code).name} rates are unverified in this system. Treat them as a guide only.</div>` : "")
+      + `<p class="small" style="margin:10px 0 0">Estimated transit: ${q.eta}. Duty and excise are calculated on the CIF value; VAT is applied on CIF plus duties.</p>`;
+    document.getElementById("rulenote").textContent = q.ruleNote;
+    document.getElementById("cgo").onclick = () => {
+      const p = new URLSearchParams({ vehicle: veh.value || "", origin: input.originCode, dest: input.destCode, price: input.vehiclePrice, cc: input.engineCc, shipping: input.shipping, cur });
+      location.href = "import-request.html?" + p.toString();
+    };
+  };
+  veh.onchange = () => { setFromVehicle(); run(); };
+  ["corigin", "cdest", "cship", "ccur", "cprice", "ccc", "ccity", "cdel"].forEach(id => { const e = document.getElementById(id); e.oninput = run; e.onchange = run; });
+  run();
+})();
+</script>
+</body>
+</html>

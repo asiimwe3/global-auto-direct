@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Create an account — GLOBAL AUTO DIRECT</title>
+<meta name="description" content="Create a GLOBAL AUTO DIRECT account to save vehicles, request imports and track shipments.">
+<meta property="og:title" content="Create an account — GLOBAL AUTO DIRECT">
+<meta property="og:description" content="Create a GLOBAL AUTO DIRECT account to save vehicles, request imports and track shipments.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="block" style="padding:60px 0"><div class="wrap" style="max-width:560px">
+  <div class="card">
+    <span class="eyebrow">Accounts</span><h2 style="margin-bottom:.3em">Create your account</h2>
+    <p class="small">Save vehicles, request imports and track shipments in one place.</p>
+    <form id="rf2">
+      <div class="form-grid">
+        <div><label class="f">Full name *</label><input id="rname" required></div>
+        <div><label class="f">Phone</label><input id="rphone" placeholder="+256..."></div>
+        <div><label class="f">Email *</label><input id="remail" type="email" required></div>
+        <div><label class="f">Country</label><select id="rcountry"></select></div>
+        <div><label class="f">Currency</label><select id="rcur"></select></div>
+        <div><label class="f">Password *</label><input id="rpass" type="password" required minlength="8"></div>
+      </div>
+      <div id="rerr" class="notice hide"></div>
+      <p class="small">Passwords are stored as SHA-256 hashes in this browser for the demonstration build. Production uses Supabase authentication with server-side sessions.</p>
+      <button class="btn primary block" type="submit">Create account</button>
+    </form>
+    <p class="small" style="margin-top:14px">Already registered? <a href="login.html" style="color:#5AA0FF">Sign in</a> · Supplying vehicles? <a href="suppliers-join.html" style="color:#5AA0FF">Apply as a supplier</a></p>
+  </div>
+</div></section>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+(function () {
+  const G = window.GAD;
+  G.mount("");
+  const d = G.db();
+  document.getElementById("rcountry").innerHTML = d.countries.map(c => `<option value="${c.code}">${c.flag} ${c.name}</option>`).join("");
+  document.getElementById("rcur").innerHTML = Object.keys(d.currencies).map(c => `<option>${c}</option>`).join("");
+  document.getElementById("rcur").value = "UGX";
+  document.getElementById("rf2").onsubmit = async (e) => {
+    e.preventDefault();
+    const r = await G.register({
+      name: document.getElementById("rname").value, email: document.getElementById("remail").value,
+      phone: document.getElementById("rphone").value, country: document.getElementById("rcountry").value,
+      currency: document.getElementById("rcur").value, password: document.getElementById("rpass").value, role: "customer",
+    });
+    if (!r.ok) { const b = document.getElementById("rerr"); b.textContent = r.error; b.classList.remove("hide"); return; }
+    location.href = "account.html";
+  };
+})();
+</script>
+</body>
+</html>

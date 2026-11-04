@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Import premium cars from Germany — TÜV reports and Hamburg shipping — GLOBAL AUTO DIRECT</title>
+<meta name="description" content="German sourcing: dealer and trade stock, service history, TÜV inspection, export plates and container shipping from Hamburg.">
+<meta property="og:title" content="Import premium cars from Germany — TÜV reports and Hamburg shipping — GLOBAL AUTO DIRECT">
+<meta property="og:description" content="German sourcing: dealer and trade stock, service history, TÜV inspection, export plates and container shipping from Hamburg.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="hero" style="padding:44px 0 34px"><div class="wrap" style="grid-template-columns:1fr">
+  <div>
+    <span class="eyebrow">Import from Germany</span>
+    <h1 style="font-size:clamp(1.9rem,4vw,3rem)">Vehicles from Germany, delivered to your door</h1>
+    <p style="max-width:75ch">German sourcing: dealer and trade stock, service history, TÜV inspection, export plates and container shipping from Hamburg.</p>
+    <div class="hero-cta"><a class="btn primary" href="vehicles.html?origin=DE">Browse Germany stock</a><a class="btn ghost" href="calculator.html">Calculate landed cost</a><a class="btn ghost" href="import-request.html?origin=DE">Request a specific vehicle</a></div>
+  </div>
+</div></section>
+<section class="block" style="padding-top:30px"><div class="wrap">
+  <div class="sec-head"><div><h2>Available from Germany</h2><p>Demonstration listings from this origin.</p></div><a class="btn ghost sm" href="vehicles.html?origin=DE">See all</a></div>
+  <div class="grid g4" id="list"></div>
+</div></section>
+<section class="block"><div class="wrap" style="max-width:860px">
+  <h2>How the Germany route works</h2>
+  <div class="steps">
+    <div class="step"><b>Source verified</b><p>We work with licensed exporters in Germany. Their trading documents and inspection partners are checked before a vehicle is quoted.</p></div>
+    <div class="step"><b>Inspected before payment</b><p>An independent inspection is arranged at the supplier or auction house, with photographs and a condition report sent to you.</p></div>
+    <div class="step"><b>Export and freight</b><p>Export documentation is prepared, the vehicle is moved to the export port and loaded, with marine insurance from the moment it leaves the yard.</p></div>
+    <div class="step"><b>Clearance and delivery</b><p>Our clearing partners handle duty, excise, VAT and port charges at destination, then arrange delivery to your city.</p></div>
+  </div>
+  <h2 style="margin-top:34px">What to check before you commit</h2>
+  <p>Confirm the vehicle's age against your country's import limit, confirm the drive side, and ask for the chassis number on the invoice to match the inspection report. Duties are calculated on the CIF value, so freight and insurance change the tax you pay. Our calculator shows every line before you commit, and every figure is marked as an estimate until a licensed agent confirms it.</p>
+  <div class="notice">All listings on this page are demonstration data. Final quotations are issued only after supplier confirmation and inspection.</div>
+  <a class="btn primary" href="import-request.html?origin=DE">Start an import request</a>
+</div></section>
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+(function () {
+  const G = window.GAD; G.mount("");
+  const list = G.db().vehicles.filter(v => v.origin === "DE");
+  document.getElementById("list").innerHTML = list.length ? list.slice(0,8).map(G.card).join("") : '<div class="card" style="grid-column:1/-1"><p>No demonstration listings from this origin yet.</p></div>';
+})();</script>
+</body>
+</html>

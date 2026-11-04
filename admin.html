@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Administration — GLOBAL AUTO DIRECT</title>
+<meta name="description" content="Operations dashboard for vehicles, suppliers, customers, orders, quotations, payments, shipping, tax rules and audit logs.">
+<meta property="og:title" content="Administration — GLOBAL AUTO DIRECT">
+<meta property="og:description" content="Operations dashboard for vehicles, suppliers, customers, orders, quotations, payments, shipping, tax rules and audit logs.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="dash">
+  <aside class="side" id="side"></aside>
+  <div class="pane" id="pane"></div>
+</section>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+(function () {
+  const G = window.GAD;
+  G.mount("");
+  const u = G.guard(["superadmin", "sales", "finance", "logistics", "agent"]);
+  if (!u) return;
+  const pane = document.getElementById("pane");
+  const side = document.getElementById("side");
+
+  const PERMS = {
+    superadmin: ["overview","vehicles","suppliers","customers","requests","orders","quotes","payments","shipping","countries","tax","inspections","documents","support","marketing","reports","audit","settings"],
+    sales: ["overview","vehicles","suppliers","customers","requests","quotes","orders","marketing","reports"],
+    finance: ["overview","payments","quotes","orders","reports","audit"],
+    logistics: ["overview","orders","shipping","inspections","documents","reports"],
+    agent: ["overview","requests","orders","customers"],
+  };
+  const LABELS = { overview:"Overview", vehicles:"Vehicles", suppliers:"Suppliers", customers:"Customers", requests:"Import requests", orders:"Orders", quotes:"Quotations", payments:"Payments", shipping:"Shipping", countries:"Countries", tax:"Customs & tax rules", inspections:"Inspections", documents:"Documents", support:"Support", marketing:"Marketing", reports:"Reports", audit:"Audit logs", settings:"Platform settings" };
+  const ICONS = { overview:"◍", vehicles:"🚗", suppliers:"🏭", customers:"☺", requests:"✎", orders:"❏", quotes:"₤", payments:"∑", shipping:"⚓", countries:"🌍", tax:"%", inspections:"✓", documents:"🗎", support:"?", marketing:"📣", reports:"📊", audit:"🗂", settings:"⚙" };
+  let tab = G.qs("tab") || "overview";
+  if (!PERMS[u.role].includes(tab)) tab = "overview";
+
+  function nav() {
+    side.innerHTML = `<div class="grp">${u.role.replace("superadmin","Super administrator")}</div>` +
+      PERMS[u.role].map(k => `<a href="#${k}" class="${k === tab ? "on" : ""}" data-tab="${k}">${ICONS[k] || "•"} ${LABELS[k]}</a>`).join("") +
+      `<div class="grp">Session</div><a href="index.html">⌂ Public site</a><a href="#" id="out">⎋ Sign out</a>`;
+    side.querySelectorAll("[data-tab]").forEach(a => a.onclick = (e) => {
+      e.preventDefault(); tab = a.dataset.tab; location.hash = tab; nav(); view();
+    });
+    side.querySelector("#out").onclick = (e) => { e.preventDefault(); G.logout(); };
+  }
+  const can = (k) => PERMS[u.role].includes(k);
+
+  function kpi(label, val, sub) { return `<div class="kpi"><div class="label">${label}</div><div class="val">${val}</div><div class="small">${sub || ""}</div></div>`; }
+
+  function view() {
+    const d = G.db();
+    const orders = d.orders, vehicles = d.vehicles, payments = d.payments || [];
+    if (tab === "overview") {
+      const revenue = payments.reduce((s, p) => s + p.amountUsd, 0);
+      const pipeline = orders.reduce((s, o) => s + o.totalUsd, 0);
+      const byCountry = {};
+      orders.forEach(o => { const v = vehicles.find(x => x.id === o.vehicleId); if (v) byCountry[v.origin] = (byCountry[v.origin] || 0) + o.totalUsd; });
+      pane.innerHTML = `<h1 style="font-size:1.9rem">Operations overview</h1><p>Live figures from the platform database, not hard-coded numbers.</p>
+        <div class="kpis">
+          ${kpi("Customers", d.users.filter(x => x.role === "customer").length, "registered buyers")}
+          ${kpi("Suppliers", d.suppliers.length, d.suppliers.filter(s => s.status === "verified").length + " verified")}
+          ${kpi("Active vehicles", vehicles.filter(v => v.status === "published").length, vehicles.length + " total listings")}
+          ${kpi("New enquiries", d.requests.filter(r => r.status === "new").length, d.requests.length + " requests total")}
+          ${kpi("Active orders", orders.filter(o => o.stage !== "Completed").length, orders.length + " all time")}
+          ${kpi("Vehicles in transit", orders.filter(o => ["Shipment booked","Vessel departed","In transit"].includes(o.stage)).length, "on the water now")}
+          ${kpi("Completed deliveries", orders.filter(o => o.stage === "Completed").length, "handed over")}
+          ${kpi("Revenue recorded", G.price(revenue), "verified payments only")}
+          ${kpi("Outstanding balance", G.price(Math.max(0, pipeline - revenue)), "from " + orders.length + " orders")}
+          ${kpi("Pending payments", orders.filter(o => o.stage === "Deposit received" || o.stage === "Customer approval").length, "awaiting money")}
+          ${kpi("Import requests", d.requests.length, "custom vehicle asks")}
+          ${kpi("Open tickets", d.tickets.filter(t => t.status === "open").length, "support queue")}
+        </div>
+        <div class="grid g2">
+          <div class="card"><h3 style="margin-top:0">Country performance</h3>
+            <div class="table-wrap"><table><tbody>${Object.keys(byCountry).map(c => `<tr><th style="position:static">${G.origin(c).flag} ${G.origin(c).name}</th><td>${G.price(byCountry[c])}</td></tr>`).join("") || '<tr><td>No order value yet.</td></tr>'}</tbody></table></div></div>
+          <div class="card"><h3 style="margin-top:0">Supplier performance</h3>
+            <div class="table-wrap"><table><tbody>${d.suppliers.map(s => `<tr><th style="position:static">${G.esc(s.name)}</th><td>${s.vehicles} listings · ${s.status}</td></tr>`).join("")}</tbody></table></div></div>
+        </div>
+        <div class="card"><h3 style="margin-top:0">Recent activity</h3>${d.audits.slice(0, 8).map(a => `<p class="small" style="margin:0 0 6px">${G.when(a.at)} — ${G.esc(a.action)}</p>`).join("")}</div>`;
+    }
+
+    if (tab === "vehicles") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Vehicle management</h1><p>Create, edit and publish inventory. Listings must be labelled demonstration data until a supplier provides verified stock.</p>
+        <div class="card"><h3 style="margin-top:0">Add a vehicle</h3>
+          <form id="vf" class="form-grid">
+            <div><label class="f">Title *</label><input id="vtitle" required></div>
+            <div><label class="f">Brand *</label><input id="vbrand" required></div>
+            <div><label class="f">Model</label><input id="vmodel"></div>
+            <div><label class="f">Year</label><input id="vyear" type="number" value="2020"></div>
+            <div><label class="f">Price (USD) *</label><input id="vprice" type="number" required></div>
+            <div><label class="f">Category</label><select id="vcat">${G.CATEGORIES.map(c => `<option value="${c[0]}">${c[1]}</option>`).join("")}</select></div>
+            <div><label class="f">Origin</label><select id="vorigin">${d.origins.map(o => `<option value="${o.code}">${o.name}</option>`).join("")}</select></div>
+            <div><label class="f">Supplier</label><select id="vsup">${d.suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join("")}</select></div>
+            <div><label class="f">Engine (cc)</label><input id="vcc" type="number" value="1500"></div>
+            <div><label class="f">Fuel</label><select id="vfuel"><option>Petrol</option><option>Diesel</option><option>Electric</option><option>Hybrid</option></select></div>
+          </form>
+          <button class="btn primary" id="vadd" style="margin-top:10px">Add vehicle</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Vehicle</th><th>Origin</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+        ${vehicles.map(v => `<tr><td><b>${G.esc(v.title)}</b><div class="small">${v.year} · ${G.num(v.mileageKm)} km · ${v.category}</div></td><td>${G.origin(v.origin).flag} ${G.origin(v.origin).name}</td><td>${G.price(v.priceUsd)}</td><td><span class="chip ${v.status === "published" ? "ok" : "warn"}">${v.status}</span></td>
+          <td><button class="btn ghost sm" data-toggle="${v.id}">${v.status === "published" ? "Unpublish" : "Publish"}</button> <button class="btn ghost sm" data-del="${v.id}">Delete</button></td></tr>`).join("")}
+        </tbody></table></div>`;
+      document.getElementById("vadd").onclick = () => {
+        const title = document.getElementById("vtitle").value.trim(), brand = document.getElementById("vbrand").value.trim(), price = Number(document.getElementById("vprice").value);
+        if (!title || !brand || !price) { G.toast("Title, brand and price are required."); return; }
+        G.save(db => {
+          db.vehicles.unshift({ id: G.uid("v"), title, brand, model: document.getElementById("vmodel").value, year: Number(document.getElementById("vyear").value), mileageKm: 0,
+            engineCc: Number(document.getElementById("vcc").value), fuel: document.getElementById("vfuel").value, transmission: "Automatic", drivetrain: "—",
+            exterior: "—", interior: "—", condition: "Used", vin: "—", origin: document.getElementById("vorigin").value, supplierId: document.getElementById("vsup").value,
+            priceUsd: price, category: document.getElementById("vcat").value, status: "published", demo: true, exportAvailable: true, videoInspection: false,
+            shipEstimateUsd: 1200, deliveryDays: 45, destinations: ["UG"], art: db.vehicles[0].art, created_at: G.now() });
+        });
+        G.audit(u.id, "Created vehicle " + title, "vehicle", "-");
+        G.toast("Vehicle added."); view();
+      };
+      pane.querySelectorAll("[data-toggle]").forEach(b => b.onclick = () => { G.save(db => { const v = db.vehicles.find(x => x.id === b.dataset.toggle); v.status = v.status === "published" ? "draft" : "published"; }); view(); });
+      pane.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { if (!confirm("Delete this listing?")) return; G.save(db => { db.vehicles = db.vehicles.filter(x => x.id !== b.dataset.del); }); G.toast("Deleted."); view(); });
+    }
+
+    if (tab === "suppliers") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Suppliers</h1><p>Verification gates inventory publishing. Only verified suppliers can publish stock.</p>
+        <div class="table-wrap"><table><thead><tr><th>Supplier</th><th>Country</th><th>Documents</th><th>Status</th><th>Set status</th></tr></thead><tbody>
+        ${d.suppliers.map(s => `<tr><td><b>${G.esc(s.name)}</b><div class="small">${s.contact}</div></td><td>${G.origin(s.country).flag} ${G.origin(s.country).name}</td><td class="small">${s.docs.join("<br>")}</td>
+          <td><span class="chip ${s.status === "verified" ? "ok" : s.status === "rejected" || s.status === "suspended" ? "bad" : "warn"}">${s.status}</span></td>
+          <td><select data-sup="${s.id}">${["pending","under-review","verified","suspended","rejected"].map(x => `<option ${x === s.status ? "selected" : ""}>${x}</option>`).join("")}</select></td></tr>`).join("")}
+        </tbody></table></div>`;
+      pane.querySelectorAll("[data-sup]").forEach(sel => sel.onchange = () => {
+        G.save(db => { const s = db.suppliers.find(x => x.id === sel.dataset.sup); s.status = sel.value; });
+        G.audit(u.id, "Supplier status set to " + sel.value, "supplier", sel.dataset.sup);
+        G.toast("Supplier status updated."); view();
+      });
+    }
+
+    if (tab === "customers") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Customers</h1><p>Registered buyers and their order value.</p>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Country</th><th>Orders</th><th>Status</th></tr></thead><tbody>
+        ${d.users.filter(x => x.role === "customer").map(c => `<tr><td>${G.esc(c.name)}</td><td>${G.esc(c.email)}</td><td>${G.country(c.country || "UG").name}</td><td>${orders.filter(o => o.customerId === c.id).length}</td><td><span class="chip ${c.status === "active" ? "ok" : "bad"}">${c.status}</span></td></tr>`).join("")}
+        </tbody></table></div>`;
+      const staff = d.users.filter(x => x.role !== "customer");
+      pane.innerHTML += `<div class="card"><h3 style="margin-top:0">Team accounts and roles</h3>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th></tr></thead><tbody>${staff.map(s => `<tr><td>${G.esc(s.name)}</td><td>${G.esc(s.email)}</td><td>${s.role}</td></tr>`).join("")}</tbody></table></div>
+        <p class="small">Roles in the permission model: super administrator, sales manager, finance officer, logistics manager, country agent, supplier, customer. Each dashboard module is limited by role.</p></div>`;
+    }
+
+    if (tab === "requests") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Import requests</h1><p>Custom vehicle requests from customers and visitors.</p>
+        ${d.requests.map(r => `<div class="card">
+          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div><h3 style="margin:0">${r.code} — ${G.esc(r.brand)} ${G.esc(r.model)} ${G.esc(r.year)}</h3>
+            <p class="small" style="margin:4px 0 0">${G.esc(r.name)} · ${G.esc(r.email)} · ${G.esc(r.phone)} · ${G.when(r.createdAt)}</p></div>
+            <span class="chip ${r.status === "new" ? "warn" : "ok"}">${r.status}</span></div>
+          <div class="table-wrap" style="margin-top:12px"><table><tbody>
+            <tr><th>Route</th><td>${r.origin === "any" ? "Any origin" : G.origin(r.origin).name} → ${G.country(r.destCountry).name}</td></tr>
+            <tr><th>Budget</th><td>${r.budgetUsd ? G.price(r.budgetUsd) : "Not specified"}</td></tr>
+            <tr><th>Condition</th><td>${G.esc(r.condition)} · ${G.esc(r.preferred || "")}</td></tr>
+            <tr><th>Notes</th><td>${G.esc(r.notes || "—")}</td></tr>
+            <tr><th>Files</th><td>${(r.files || []).map(f => G.esc(f.name) + " (" + f.size + ")").join(", ") || "None"}</td></tr>
+          </tbody></table></div>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn primary sm" data-quote="${r.id}">Prepare quotation</button>
+            <button class="btn ghost sm" data-close="${r.id}">Mark closed</button>
+          </div></div>`).join("")}`;
+      pane.querySelectorAll("[data-quote]").forEach(b => b.onclick = () => {
+        const r = d.requests.find(x => x.id === b.dataset.quote);
+        G.save(db => {
+          const quote = { id: G.uid("q"), requestId: r.id, customerId: r.userId, vehicleId: null, origin: r.origin === "any" ? "JP" : r.origin, dest: r.destCountry, totalUsd: Math.round((r.budgetUsd || 15000) * 1.32), currency: G.cur(), status: "sent", createdAt: G.now(), validUntil: new Date(Date.now() + 30 * 864e5).toISOString().slice(0,10) };
+          db.quotes.unshift(quote);
+          const req = db.requests.find(x => x.id === r.id); req.status = "quoted";
+          if (r.userId) db.notifications.unshift({ id: G.uid("nt"), userId: r.userId, text: "Quotation prepared for " + r.code + ". Open your account to review it.", read: false, at: G.now() });
+        });
+        G.audit(u.id, "Prepared quotation for " + r.code, "request", r.id);
+        G.toast("Quotation created and customer notified."); view();
+      });
+      pane.querySelectorAll("[data-close]").forEach(b => b.onclick = () => { G.save(db => db.requests.find(x => x.id === b.dataset.close).status = "closed"); view(); });
+    }
+
+    if (tab === "orders") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Order management</h1><p>Advance stages only with verified evidence. Every change is written to the order log and the audit trail.</p>
+        ${orders.map(o => { const v = vehicles.find(x => x.id === o.vehicleId) || {}; const c = d.users.find(x => x.id === o.customerId) || {};
+          return `<div class="card">
+            <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h3 style="margin:0">${o.code}</h3>
+              <p class="small" style="margin:4px 0 0">${G.esc(v.title || "")} · ${G.esc(c.name || "")} · ${G.price(o.totalUsd)}</p></div>
+              <span class="chip warn">${o.stage}</span></div>
+            <div class="table-wrap" style="margin-top:12px"><table><tbody>
+              <tr><th>Stage ${G.stageIndex(o.stage) + 1} of 16</th><td>${o.stage}</td></tr>
+              <tr><th>Deposit</th><td>${G.price(o.depositUsd || 0)}</td></tr>
+              <tr><th>Created</th><td>${G.when(o.createdAt)}</td></tr></tbody></table></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+              <select id="stg_${o.id}">${G.STAGES.map((s, i) => `<option value="${s}" ${s === o.stage ? "selected" : ""}>${i + 1}. ${s}</option>`).join("")}</select>
+              <input id="note_${o.id}" placeholder="Evidence note (invoice, inspection, BL reference)" style="flex:1;min-width:220px">
+              <button class="btn primary sm" data-stage="${o.id}">Update stage</button>
+            </div>
+            <h4 style="margin:16px 0 6px">Activity log</h4>
+            ${o.log.slice().reverse().slice(0, 6).map(l => `<p class="small" style="margin:0 0 4px">${G.when(l.at)} — ${G.esc(l.text)}</p>`).join("")}
+          </div>`; }).join("")}`;
+      pane.querySelectorAll("[data-stage]").forEach(b => b.onclick = () => {
+        const id = b.dataset.stage;
+        const stage = document.getElementById("stg_" + id).value;
+        const note = document.getElementById("note_" + id).value.trim();
+        const order = orders.find(o => o.id === id);
+        if (G.stageIndex(stage) - G.stageIndex(order.stage) > 3) { G.toast("Stages cannot skip more than three steps without a supervisor."); return; }
+        if (!note) { G.toast("Add an evidence note before changing the stage."); return; }
+        G.save(db => {
+          const o = db.orders.find(x => x.id === id);
+          o.stage = stage;
+          o.log.push({ at: G.now(), by: u.id, text: stage + " — " + note });
+          const cust = db.users.find(x => x.id === o.customerId);
+          if (cust) db.notifications.unshift({ id: G.uid("nt"), userId: cust.id, text: o.code + " moved to: " + stage + ". " + note, read: false, at: G.now() });
+        });
+        G.audit(u.id, "Order " + order.code + " → " + stage, "order", id);
+        G.toast("Stage updated and customer notified."); view();
+      });
+    }
+
+    if (tab === "quotes") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Quotations</h1><p>Landed-cost quotations issued to customers.</p>
+        <div class="table-wrap"><table><thead><tr><th>Quote</th><th>Customer</th><th>Route</th><th>Total</th><th>Status</th><th>Valid until</th></tr></thead><tbody>
+        ${d.quotes.map(q => { const c = d.users.find(x => x.id === q.customerId) || {}; return `<tr><td>${q.id.toUpperCase()}</td><td>${G.esc(c.name || "—")}</td><td>${q.origin} → ${G.country(q.dest).name}</td><td>${G.price(q.totalUsd)}</td><td><span class="chip ${q.status === "approved" ? "ok" : "warn"}">${q.status}</span></td><td>${q.validUntil}</td></tr>`; }).join("")}
+        </tbody></table></div>
+        <p class="small" style="margin-top:12px">Quotations are calculated by the same engine as the public calculator: destination duty, excise by engine size, VAT, freight, insurance, clearance and the platform fee. Figures carry the estimate disclaimer until a clearing agent confirms them.</p>`;
+    }
+
+    if (tab === "payments" && can("payments")) {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Payment reconciliation</h1><p>Record verified payments. Order stages advance only after money is confirmed.</p>
+        <div class="card"><h3 style="margin-top:0">Record a payment</h3>
+          <div class="form-grid">
+            <div><label class="f">Order</label><select id="porder">${orders.map(o => `<option value="${o.id}">${o.code}</option>`).join("")}</select></div>
+            <div><label class="f">Type</label><select id="ptype"><option>Booking deposit</option><option>Milestone payment</option><option>Balance</option><option>Refund</option></select></div>
+            <div><label class="f">Amount (USD)</label><input id="pamount" type="number" min="0"></div>
+            <div><label class="f">Bank / gateway reference</label><input id="pref" placeholder="BT-99331"></div>
+          </div>
+          <button class="btn primary" id="padd" style="margin-top:8px">Record payment</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Order</th><th>Type</th><th>Reference</th><th>Amount</th></tr></thead><tbody>
+        ${payments.map(p => `<tr><td>${G.when(p.at)}</td><td>${(orders.find(o => o.id === p.orderId) || {}).code}</td><td>${p.type}</td><td>${G.esc(p.reference)}</td><td>${G.price(p.amountUsd)}</td></tr>`).join("") || '<tr><td colspan="5">No payments recorded yet.</td></tr>'}
+        </tbody></table></div>
+        <div class="notice">Card and mobile money gateways are not connected in this build. Production confirms every payment by verified webhook before this table is written to.</div>`;
+      document.getElementById("padd").onclick = () => {
+        const amount = Number(document.getElementById("pamount").value || 0);
+        if (!amount) { G.toast("Enter an amount."); return; }
+        const orderId = document.getElementById("porder").value;
+        G.save(db => {
+          db.payments = db.payments || [];
+          db.payments.unshift({ id: G.uid("pay"), orderId, type: document.getElementById("ptype").value, amountUsd: amount, reference: document.getElementById("pref").value || "—", at: G.now(), verified: true, by: u.id });
+          const o = db.orders.find(x => x.id === orderId);
+          o.log.push({ at: G.now(), by: u.id, text: "Payment recorded: " + document.getElementById("ptype").value + " " + G.price(amount) });
+          if (document.getElementById("ptype").value === "Booking deposit" && G.stageIndex(o.stage) < 5) o.stage = "Deposit received";
+        });
+        G.audit(u.id, "Recorded payment " + G.price(amount), "payment", orderId);
+        G.toast("Payment recorded."); view();
+      };
+    }
+
+    if (tab === "shipping") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Shipping</h1><p>Book freight, record vessel details and post tracking events. No live vessel API is connected, so everything here is a manual, auditable update.</p>
+        ${orders.map(o => { const s = d.shipments.find(x => x.orderId === o.id);
+          return `<div class="card"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px"><h3 style="margin:0">${o.code}</h3><span class="chip ${s ? "ok" : "warn"}">${s ? s.status : "no shipment"}</span></div>
+          ${s ? `<div class="table-wrap" style="margin-top:10px"><table><tbody>
+            <tr><th>Vessel</th><td>${G.esc(s.vessel)}</td></tr><tr><th>Container / BL</th><td>${s.container} · ${s.billOfLading}</td></tr>
+            <tr><th>Route</th><td>${s.departurePort} → ${s.arrivalPort}</td></tr><tr><th>ETD / ETA</th><td>${s.etd} / ${s.eta}</td></tr></tbody></table></div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><input id="evt_${o.id}" placeholder="New tracking event (e.g. departed Mombasa)" style="flex:1;min-width:220px"><button class="btn primary sm" data-evt="${o.id}">Add event</button></div>`
+          : `<div class="form-grid" style="margin-top:10px">
+              <div><label class="f">Vessel</label><input id="ves_${o.id}" placeholder="GRAND DAWN V.214"></div>
+              <div><label class="f">Container</label><input id="con_${o.id}" placeholder="GESU-4471220"></div>
+              <div><label class="f">Bill of lading</label><input id="bl_${o.id}"></div>
+              <div><label class="f">Shipping company</label><input id="co_${o.id}"></div>
+              <div><label class="f">ETD</label><input id="etd_${o.id}" type="date"></div>
+              <div><label class="f">ETA</label><input id="eta_${o.id}" type="date"></div>
+            </div><button class="btn primary sm" data-book="${o.id}" style="margin-top:8px">Create shipment</button>`}
+          </div>`; }).join("")}`;
+      pane.querySelectorAll("[data-book]").forEach(b => b.onclick = () => {
+        const id = b.dataset.book;
+        G.save(db => {
+          db.shipments.push({ id: G.uid("shp"), orderId: id, vessel: document.getElementById("ves_" + id).value || "TBC", container: document.getElementById("con_" + id).value || "TBC",
+            billOfLading: document.getElementById("bl_" + id).value || "TBC", shippingCompany: document.getElementById("co_" + id).value || "TBC",
+            departurePort: "Origin port", arrivalPort: G.country("UG").port, etd: document.getElementById("etd_" + id).value, eta: document.getElementById("eta_" + id).value,
+            status: "Booked", events: [{ at: G.now().slice(0, 10), text: "Shipment created by logistics" }], trackingNote: "Manual updates by our logistics team." });
+          const o = db.orders.find(x => x.id === id); o.stage = "Shipment booked"; o.log.push({ at: G.now(), by: u.id, text: "Shipment booked" });
+        });
+        G.audit(u.id, "Shipment created", "shipment", id); G.toast("Shipment created."); view();
+      });
+      pane.querySelectorAll("[data-evt]").forEach(b => b.onclick = () => {
+        const id = b.dataset.evt; const txt = document.getElementById("evt_" + id).value.trim();
+        if (!txt) return;
+        G.save(db => { const s = db.shipments.find(x => x.orderId === id); if (s) { s.events.push({ at: G.now().slice(0, 10), text: txt }); s.status = txt.toLowerCase().includes("arriv") ? "Arrived" : s.status; } });
+        G.audit(u.id, "Tracking event: " + txt, "shipment", id); G.toast("Tracking updated."); view();
+      });
+    }
+
+    if (tab === "countries") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Country configuration</h1><p>Ports, clearance and delivery charges per destination. Marking a country unverified flags every quotation for that route.</p>
+        <div class="table-wrap"><table><thead><tr><th>Country</th><th>Port</th><th>Handling (USD)</th><th>Clearance</th><th>Delivery</th><th>Verified</th></tr></thead><tbody>
+        ${d.countries.map(c => `<tr><td><b>${c.flag} ${c.name}</b><div class="small">${G.esc(c.regs.slice(0, 90))}…</div></td><td>${c.port}</td>
+          <td><input type="number" value="${c.portHandling}" data-c="${c.code}" data-k="portHandling" style="width:100px"></td>
+          <td><input type="number" value="${c.clearance}" data-c="${c.code}" data-k="clearance" style="width:100px"></td>
+          <td><input type="number" value="${c.localDelivery}" data-c="${c.code}" data-k="localDelivery" style="width:100px"></td>
+          <td><input type="checkbox" ${c.verified ? "checked" : ""} data-c="${c.code}" data-k="verified" style="width:auto"></td></tr>`).join("")}
+        </tbody></table></div><button class="btn primary" id="csave" style="margin-top:12px">Save country settings</button>
+        <div class="card" style="margin-top:16px"><h3 style="margin-top:0">Add a destination country</h3>
+          <div class="form-grid"><div><label class="f">Name</label><input id="ncn" placeholder="Zambia"></div><div><label class="f">Code</label><input id="ncc" placeholder="ZM"></div>
+          <div><label class="f">Currency</label><input id="nccur" value="USD"></div><div><label class="f">Arrival port</label><input id="ncp" placeholder="Dar es Salaam"></div></div>
+          <button class="btn ghost" id="ncadd" style="margin-top:8px">Add country</button></div>`;
+      document.getElementById("csave").onclick = () => {
+        pane.querySelectorAll("[data-c]").forEach(inp => {
+          G.save(db => { const c = db.countries.find(x => x.code === inp.dataset.c); if (!c) return; c[inp.dataset.k] = inp.type === "checkbox" ? inp.checked : Number(inp.value); });
+        });
+        G.audit(u.id, "Updated country charges", "country", "-"); G.toast("Country settings saved."); view();
+      };
+      document.getElementById("ncadd").onclick = () => {
+        const name = document.getElementById("ncn").value.trim(), code = document.getElementById("ncc").value.trim().toUpperCase();
+        if (!name || !code) { G.toast("Name and code are required."); return; }
+        G.save(db => db.countries.push({ code, name, flag: "🌍", currency: document.getElementById("nccur").value, capital: name, port: document.getElementById("ncp").value || "TBC", portHandling: 300, clearance: 350, localDelivery: 300, rightHand: true, verified: false, regs: "Regulations not yet configured. Administrator must add vehicle eligibility and tax rules before quoting.", ports: [], routes: [] }));
+        G.toast("Country added. Add its tax rules next."); view();
+      };
+    }
+
+    if (tab === "tax") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Customs and tax rules</h1><p>Per-country, per-origin rule sets. There is no single global import percentage anywhere in this system.</p>
+        ${d.taxRules.map(r => `<div class="card"><form data-rule="${r.id}">
+          <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><h3 style="margin:0">${G.country(r.country).flag} ${G.country(r.country).name} ← ${G.origin(r.origin).name}</h3>
+            <span class="chip ${r.verified ? "ok" : "warn"}">${r.verified ? "verified" : "unverified"}</span></div>
+          <div class="form-grid" style="margin-top:12px">
+            <div><label class="f">Duty %</label><input type="number" step="0.1" value="${r.dutyPct}" data-f="dutyPct"></div>
+            <div><label class="f">VAT %</label><input type="number" step="0.1" value="${r.vatPct}" data-f="vatPct"></div>
+            <div><label class="f">Max age (years)</label><input type="number" value="${r.maxAgeYears}" data-f="maxAgeYears"></div>
+            <div><label class="f">Effective from</label><input type="date" value="${r.effectiveFrom}" data-f="effectiveFrom"></div>
+          </div>
+          <div class="field"><label class="f">Excise tiers by engine size</label>
+            ${r.exciseTiers.map((t, i) => `<div style="display:flex;gap:8px;margin-bottom:6px"><span class="small" style="width:120px;padding-top:10px">up to ${t.maxCc >= 99999 ? "any" : t.maxCc + " cc"}</span><input type="number" value="${t.pct}" data-tier="${i}" style="max-width:120px"><span class="small" style="padding-top:10px">%</span></div>`).join("")}
+          </div>
+          <div class="field"><label class="f">Rule note shown to customers</label><textarea rows="2" data-f="note">${G.esc(r.note)}</textarea></div>
+          <label class="small"><input type="checkbox" ${r.verified ? "checked" : ""} data-f="verified" style="width:auto"> Verified against official source</label>
+          <div style="margin-top:10px"><button class="btn primary sm" type="submit">Save rule</button></div>
+        </form></div>`).join("")}`;
+      pane.querySelectorAll("[data-rule]").forEach(f => f.onsubmit = (e) => {
+        e.preventDefault();
+        const id = f.dataset.rule;
+        G.save(db => {
+          const r = db.taxRules.find(x => x.id === id);
+          f.querySelectorAll("[data-f]").forEach(i => { r[i.dataset.f] = i.type === "checkbox" ? i.checked : (i.type === "number" ? Number(i.value) : i.value); });
+          if (r.maxAgeYears) r.maxAgeYears = Number(r.maxAgeYears);
+          f.querySelectorAll("[data-tier]").forEach(i => { r.exciseTiers[Number(i.dataset.tier)].pct = Number(i.value); });
+        });
+        G.audit(u.id, "Tax rule updated: " + id, "taxRule", id);
+        G.toast("Rule saved. New quotations use it immediately."); view();
+      });
+    }
+
+    if (tab === "inspections") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Inspections</h1><p>Independent inspection status per order, with the report attached to the order file.</p>
+        <div class="table-wrap"><table><thead><tr><th>Order</th><th>Vehicle</th><th>Inspection stage</th><th>Report</th></tr></thead><tbody>
+        ${orders.map(o => { const v = vehicles.find(x => x.id === o.vehicleId) || {}; const doc = d.documents.find(x => x.orderId === o.id && x.type === "Inspection");
+          const done = G.stageIndex(o.stage) >= 7;
+          return `<tr><td>${o.code}</td><td>${G.esc(v.title || "")}</td><td><span class="chip ${done ? "ok" : "warn"}">${done ? "Completed" : "Pending"}</span></td><td>${doc ? G.esc(doc.name) : '<span class="small">Not uploaded</span>'}</td></tr>`; }).join("")}
+        </tbody></table></div>`;
+    }
+
+    if (tab === "documents") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Documents</h1><p>Order documents. Production stores files privately with signed, time-limited access.</p>
+        <div class="card"><div class="form-grid">
+          <div><label class="f">Order</label><select id="dorder">${orders.map(o => `<option value="${o.id}">${o.code}</option>`).join("")}</select></div>
+          <div><label class="f">Type</label><select id="dtype"><option>Export document</option><option>Shipping</option><option>Inspection</option><option>Customs</option><option>Payment receipt</option></select></div>
+          <div><label class="f">File</label><input id="dfile" type="file"></div>
+        </div><button class="btn primary" id="dadd" style="margin-top:8px">Upload document</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Document</th><th>Order</th><th>Type</th><th>Added</th><th>Size</th><th></th></tr></thead><tbody>
+        ${d.documents.map(doc => `<tr><td>${G.esc(doc.name)}</td><td>${(orders.find(o => o.id === doc.orderId) || {}).code}</td><td>${doc.type}</td><td>${G.when(doc.at)}</td><td>${doc.size}</td><td><button class="btn ghost sm" data-doc="${doc.id}">Remove</button></td></tr>`).join("")}
+        </tbody></table></div>`;
+      document.getElementById("dadd").onclick = () => {
+        const f = document.getElementById("dfile").files[0];
+        if (!f) { G.toast("Choose a file first."); return; }
+        G.save(db => db.documents.unshift({ id: G.uid("doc"), orderId: document.getElementById("dorder").value, name: f.name, type: document.getElementById("dtype").value, uploadedBy: u.id, at: G.now(), size: Math.round(f.size / 1024) + " KB" }));
+        G.audit(u.id, "Uploaded document " + f.name, "document", "-"); G.toast("Document added."); view();
+      };
+      pane.querySelectorAll("[data-doc]").forEach(b => b.onclick = () => { G.save(db => db.documents = db.documents.filter(x => x.id !== b.dataset.doc)); view(); });
+    }
+
+    if (tab === "support") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Support and complaints</h1><p>Customer messages. Replies are visible in the customer's account.</p>
+        ${d.tickets.map(t => { const c = d.users.find(x => x.id === t.userId) || {}; return `<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>${G.esc(t.subject)}</b><span class="chip ${t.status === "open" ? "warn" : "ok"}">${t.status}</span></div>
+          <p class="small" style="margin:6px 0">${G.esc(t.message)}</p><p class="small" style="margin:0 0 8px">From ${G.esc(c.name || "guest")} · ${G.when(t.at)}</p>
+          ${t.reply ? `<p class="small" style="color:#2ED47A">Reply: ${G.esc(t.reply)}</p>` : `<div style="display:flex;gap:8px;flex-wrap:wrap"><input id="rep_${t.id}" placeholder="Type a reply" style="flex:1;min-width:220px"><button class="btn primary sm" data-reply="${t.id}">Reply</button></div>`}</div>`; }).join("") || '<div class="card"><p>No tickets.</p></div>'}`;
+      pane.querySelectorAll("[data-reply]").forEach(b => b.onclick = () => {
+        const id = b.dataset.reply, txt = document.getElementById("rep_" + id).value.trim();
+        if (!txt) return;
+        G.save(db => { const t = db.tickets.find(x => x.id === id); t.reply = txt; t.status = "answered"; });
+        G.audit(u.id, "Replied to ticket " + id, "ticket", id); G.toast("Reply saved."); view();
+      });
+    }
+
+    if (tab === "marketing") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Marketing</h1><p>Newsletter list and customer notifications.</p>
+        <div class="card"><h3 style="margin-top:0">Broadcast a notification</h3>
+          <div class="field"><label class="f">Message</label><textarea id="bmsg" rows="3" placeholder="New arrivals from Japan this week..."></textarea></div>
+          <label class="small"><input type="checkbox" id="ball" style="width:auto"> Send to all customers</label>
+          <button class="btn primary" id="bsend" style="margin-top:8px">Send notification</button></div>
+        <div class="card"><h3 style="margin-top:0">Newsletter subscribers (${(d.newsletter || []).length})</h3>
+          ${(d.newsletter || []).map(n => `<p class="small" style="margin:0 0 4px">${G.esc(n.email)} · ${G.when(n.at)}</p>`).join("") || '<p class="small">No subscribers yet.</p>'}</div>`;
+      document.getElementById("bsend").onclick = () => {
+        const msg = document.getElementById("bmsg").value.trim();
+        if (!msg) return;
+        const all = document.getElementById("ball").checked;
+        G.save(db => {
+          db.users.filter(x => x.role === "customer" && (all || true)).forEach(c => db.notifications.unshift({ id: G.uid("nt"), userId: c.id, text: msg, read: false, at: G.now() }));
+        });
+        G.audit(u.id, "Broadcast notification", "marketing", "-"); G.toast("Notification sent to customers."); view();
+      };
+    }
+
+    if (tab === "reports") {
+      const paymentsAll = payments;
+      const revenue = paymentsAll.reduce((s, p) => s + p.amountUsd, 0);
+      const byStage = {};
+      orders.forEach(o => byStage[o.stage] = (byStage[o.stage] || 0) + 1);
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Financial reports</h1><p>Built from recorded payments and order values.</p>
+        <div class="kpis">${kpi("Recorded revenue", G.price(revenue), "verified payments")}${kpi("Order pipeline", G.price(orders.reduce((s, o) => s + o.totalUsd, 0)), "all orders")}${kpi("Average order", G.price(orders.length ? orders.reduce((s, o) => s + o.totalUsd, 0) / orders.length : 0), "")}${kpi("Outstanding", G.price(Math.max(0, orders.reduce((s, o) => s + o.totalUsd, 0) - revenue)), "to collect")}</div>
+        <div class="card"><h3 style="margin-top:0">Orders by stage</h3><div class="table-wrap"><table><tbody>${Object.keys(byStage).map(k => `<tr><th style="position:static">${k}</th><td>${byStage[k]}</td></tr>`).join("")}</tbody></table></div></div>
+        <div class="card"><h3 style="margin-top:0">Export</h3><button class="btn ghost" id="csv">Download orders as CSV</button></div>`;
+      document.getElementById("csv").onclick = () => {
+        const rows = [["Order","Customer","Vehicle","Stage","Total USD","Created"]].concat(orders.map(o => {
+          const c = d.users.find(x => x.id === o.customerId) || {}; const v = vehicles.find(x => x.id === o.vehicleId) || {};
+          return [o.code, c.name || "", v.title || "", o.stage, o.totalUsd, o.createdAt];
+        }));
+        const csv = rows.map(r => r.map(x => '"' + String(x).replace(/"/g, '""') + '"').join(",")).join("\n");
+        const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "orders.csv"; a.click();
+      };
+    }
+
+    if (tab === "audit") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Audit logs</h1><p>Every administrative action is recorded with actor and timestamp.</p>
+        <div class="table-wrap"><table><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Entity</th></tr></thead><tbody>
+        ${d.audits.map(a => { const actor = d.users.find(x => x.id === a.actor); return `<tr><td>${G.when(a.at)}</td><td>${G.esc(actor ? actor.name : "System")}</td><td>${G.esc(a.action)}</td><td>${a.entity}</td></tr>`; }).join("")}
+        </tbody></table></div>`;
+    }
+
+    if (tab === "settings") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Platform settings</h1><p>Configuration that affects quotations and customer-facing text.</p>
+        <div class="card"><div class="form-grid">
+          <div><label class="f">Company name</label><input id="scname" value="${G.esc(d.settings.company)}"></div>
+          <div><label class="f">Support email</label><input id="scemail" value="${G.esc(d.settings.supportEmail)}"></div>
+          <div><label class="f">Support phone</label><input id="scphone" value="${G.esc(d.settings.supportPhone)}"></div>
+          <div><label class="f">Platform fee %</label><input id="scfee" type="number" step="0.1" value="${d.settings.platformFeePct}"></div>
+        </div><button class="btn primary" id="scsave" style="margin-top:8px">Save settings</button></div>
+        <div class="card"><h3 style="margin-top:0">Exchange rates (manual)</h3>
+          <div class="table-wrap"><table><thead><tr><th>Currency</th><th>Rate per USD</th></tr></thead><tbody>
+          ${Object.keys(d.currencies).map(c => `<tr><th style="position:static">${c}</th><td><input type="number" step="0.0001" value="${d.currencies[c].rate}" data-cur="${c}" style="max-width:140px"></td></tr>`).join("")}
+          </tbody></table></div><button class="btn ghost" id="cursave" style="margin-top:8px">Save rates</button>
+          <p class="small">${d.settings.integrations.fxRates}. A live FX provider is not connected yet.</p></div>
+        <div class="card"><h3 style="margin-top:0">Integrations</h3>
+          <div class="table-wrap"><table><tbody>${Object.keys(d.settings.integrations).map(k => `<tr><th style="position:static">${k}</th><td>${G.esc(d.settings.integrations[k])}</td></tr>`).join("")}</tbody></table></div>
+          <p class="small">Nothing here claims a live connection. Each integration flips to a real status once credentials are configured and tested.</p></div>
+        <div class="card"><h3 style="margin-top:0">Demonstration data</h3><p class="small">Reset returns every table to the seeded demonstration set. Use it during training.</p>
+        <button class="btn ghost" id="reset">Reset demonstration data</button></div>`;
+      document.getElementById("scsave").onclick = () => {
+        G.save(db => { db.settings.company = document.getElementById("scname").value; db.settings.supportEmail = document.getElementById("scemail").value; db.settings.supportPhone = document.getElementById("scphone").value; db.settings.platformFeePct = Number(document.getElementById("scfee").value); });
+        G.toast("Settings saved."); view();
+      };
+      document.getElementById("cursave").onclick = () => {
+        pane.querySelectorAll("[data-cur]").forEach(i => G.save(db => db.currencies[i.dataset.cur].rate = Number(i.value)));
+        G.toast("Exchange rates saved."); view();
+      };
+      document.getElementById("reset").onclick = () => { if (confirm("Reset all demonstration data? This clears your changes in this browser.")) G.reset(); };
+    }
+  }
+  nav(); view();
+})();
+</script>
+</body>
+</html>

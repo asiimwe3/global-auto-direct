@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in — GLOBAL AUTO DIRECT</title>
+<meta name="description" content="Sign in to your GLOBAL AUTO DIRECT account to manage saved vehicles, quotations, orders and shipments.">
+<meta property="og:title" content="Sign in — GLOBAL AUTO DIRECT">
+<meta property="og:description" content="Sign in to your GLOBAL AUTO DIRECT account to manage saved vehicles, quotations, orders and shipments.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="block" style="padding:60px 0"><div class="wrap" style="max-width:460px">
+  <div class="card">
+    <span class="eyebrow">Accounts</span><h2 style="margin-bottom:.3em">Sign in</h2>
+    <p class="small">Access your saved vehicles, quotations, orders and tracking.</p>
+    <form id="lf">
+      <div class="field"><label class="f">Email</label><input id="lemail" type="email" required autocomplete="username"></div>
+      <div class="field"><label class="f">Password</label><input id="lpass" type="password" required autocomplete="current-password"></div>
+      <div id="lerr" class="notice hide"></div>
+      <button class="btn primary block" type="submit">Sign in</button>
+    </form>
+    <p class="small" style="margin-top:14px">No account yet? <a href="register.html" style="color:#5AA0FF">Create one</a></p>
+    <div class="notice info" style="margin-bottom:0">
+      <b>Demonstration logins</b><br>
+      Customer — customer@demo.com / Demo@2026<br>
+      Administrator — admin@globalautodirect.com / Admin@2026<br>
+      Sales — sales@… / Sales@2026 · Finance — finance@… / Finance@2026<br>
+      Logistics — logistics@… / Logistics@2026 · Supplier — supplier@… / Supplier@2026
+    </div>
+  </div>
+</div></section>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+(function () {
+  const G = window.GAD;
+  G.mount("");
+  document.getElementById("lf").onsubmit = async (e) => {
+    e.preventDefault();
+    const r = await G.login(document.getElementById("lemail").value, document.getElementById("lpass").value);
+    if (!r.ok) { const b = document.getElementById("lerr"); b.textContent = r.error; b.classList.remove("hide"); return; }
+    const next = G.qs("next") || (r.user.role === "customer" ? "account.html" : r.user.role === "supplier" ? "supplier.html" : "admin.html");
+    location.href = next;
+  };
+})();
+</script>
+</body>
+</html>

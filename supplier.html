@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Supplier portal — GLOBAL AUTO DIRECT</title>
+<meta name="description" content="Supplier dashboard to manage inventory, verification documents and assigned orders.">
+<meta property="og:title" content="Supplier portal — GLOBAL AUTO DIRECT">
+<meta property="og:description" content="Supplier dashboard to manage inventory, verification documents and assigned orders.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="dash">
+  <aside class="side" id="side"></aside>
+  <div class="pane" id="pane"></div>
+</section>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+(function () {
+  const G = window.GAD;
+  G.mount("");
+  const u = G.guard(["supplier"]);
+  if (!u) return;
+  const pane = document.getElementById("pane"), side = document.getElementById("side");
+  let tab = G.qs("tab") || "overview";
+  const TABS = [["overview","Overview"],["inventory","My inventory"],["orders","Assigned orders"],["documents","Documents"],["profile","Business profile"]];
+
+  function nav() {
+    side.innerHTML = `<div class="grp">Supplier</div>` + TABS.map(([k, l]) => `<a href="#${k}" class="${k===tab?"on":""}" data-tab="${k}">• ${l}</a>`).join("") +
+      `<div class="grp">Session</div><a href="index.html">⌂ Public site</a><a href="#" id="out">⎋ Sign out</a>`;
+    side.querySelectorAll("[data-tab]").forEach(a => a.onclick = e => { e.preventDefault(); tab = a.dataset.tab; nav(); view(); });
+    side.querySelector("#out").onclick = e => { e.preventDefault(); G.logout(); };
+  }
+
+  function view() {
+    const d = G.db();
+    const s = d.suppliers.find(x => x.id === u.supplierId) || d.suppliers[0];
+    const myVehicles = d.vehicles.filter(v => v.supplierId === s.id);
+    const myOrders = d.orders.filter(o => myVehicles.some(v => v.id === o.vehicleId));
+    const verified = s.status === "verified";
+
+    if (tab === "overview") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">${G.esc(s.name)}</h1>
+        <p>Supplier workspace. Verification status: <span class="chip ${verified ? "ok" : "warn"}">${s.status}</span></p>
+        ${!verified ? '<div class="notice">Your documents are still being reviewed. You can prepare listings, but they stay in draft and cannot be published or quoted until an administrator verifies your business.</div>' : ""}
+        <div class="kpis">
+          <div class="kpi"><div class="label">Listings</div><div class="val">${myVehicles.length}</div><div class="small">${myVehicles.filter(v => v.status === "published").length} published</div></div>
+          <div class="kpi"><div class="label">Assigned orders</div><div class="val">${myOrders.length}</div><div class="small">across ${new Set(myOrders.map(o => o.stage)).size} stages</div></div>
+          <div class="kpi"><div class="label">Country</div><div class="val" style="font-size:1rem">${G.origin(s.country).flag} ${G.origin(s.country).name}</div></div>
+          <div class="kpi"><div class="label">Rating</div><div class="val">${s.rating || "—"}</div><div class="small">buyer feedback</div></div>
+        </div>
+        <div class="card"><h3 style="margin-top:0">What buyers can see</h3>
+          <p class="small">Your listings appear in the marketplace once published. Buyers see the vehicle specifications, your business name and verification badge, but never your internal notes or contact details until a quotation is approved.</p></div>`;
+    }
+
+    if (tab === "inventory") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">My inventory</h1><p>Add vehicles, set availability and attach inspection reports.</p>
+        <div class="card"><h3 style="margin-top:0">Add a vehicle</h3>
+          <div class="form-grid">
+            <div><label class="f">Title *</label><input id="t"></div>
+            <div><label class="f">Brand *</label><input id="b"></div>
+            <div><label class="f">Model</label><input id="m"></div>
+            <div><label class="f">Year</label><input id="y" type="number" value="2020"></div>
+            <div><label class="f">Price USD *</label><input id="p" type="number"></div>
+            <div><label class="f">Engine cc</label><input id="cc" type="number" value="1500"></div>
+            <div><label class="f">Category</label><select id="cat">${G.CATEGORIES.map(c => `<option value="${c[0]}">${c[1]}</option>`).join("")}</select></div>
+            <div><label class="f">Inspection report</label><input id="rep" type="file"></div>
+          </div>
+          <button class="btn primary" id="add" style="margin-top:8px">Save listing</button>
+          ${verified ? "" : '<p class="small" style="color:#FFB020">Saved as draft until your business is verified.</p>'}
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Vehicle</th><th>Price</th><th>Status</th><th>Action</th></tr></thead><tbody>
+        ${myVehicles.map(v => `<tr><td><b>${G.esc(v.title)}</b><div class="small">${v.year} · ${v.category}</div></td><td>${G.price(v.priceUsd)}</td>
+          <td><span class="chip ${v.status === "published" ? "ok" : "warn"}">${v.status}</span></td>
+          <td>${verified ? `<button class="btn ghost sm" data-pub="${v.id}">${v.status === "published" ? "Unpublish" : "Publish"}</button>` : '<span class="small">Awaiting verification</span>'}</td></tr>`).join("") || '<tr><td colspan="4">No listings yet.</td></tr>'}
+        </tbody></table></div>`;
+      document.getElementById("add").onclick = () => {
+        const title = document.getElementById("t").value.trim(), brand = document.getElementById("b").value.trim(), price = Number(document.getElementById("p").value);
+        if (!title || !brand || !price) { G.toast("Title, brand and price are required."); return; }
+        G.save(db => db.vehicles.unshift({ id: G.uid("v"), title, brand, model: document.getElementById("m").value, year: Number(document.getElementById("y").value),
+          mileageKm: 0, engineCc: Number(document.getElementById("cc").value), fuel: "Petrol", transmission: "Automatic", drivetrain: "—", exterior: "—", interior: "—",
+          condition: "Used", vin: "—", origin: s.country, supplierId: s.id, priceUsd: price, category: document.getElementById("cat").value,
+          status: verified ? "published" : "draft", demo: true, exportAvailable: true, videoInspection: false, shipEstimateUsd: 1100, deliveryDays: 45, destinations: ["UG"], art: db.vehicles[0].art, created_at: G.now() }));
+        G.audit(u.id, "Supplier added listing " + title, "vehicle", "-");
+        G.toast(verified ? "Listing published." : "Listing saved as draft."); view();
+      };
+      pane.querySelectorAll("[data-pub]").forEach(b => b.onclick = () => {
+        G.save(db => { const v = db.vehicles.find(x => x.id === b.dataset.pub); v.status = v.status === "published" ? "draft" : "published"; });
+        view();
+      });
+    }
+
+    if (tab === "orders") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Assigned orders</h1><p>Orders that use your inventory. You can update sourcing milestones only; shipping and payment stages belong to our logistics and finance teams.</p>
+        ${myOrders.map(o => `<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>${o.code}</b><span class="chip warn">${o.stage}</span></div>
+          <p class="small" style="margin:6px 0">${G.esc((d.vehicles.find(v => v.id === o.vehicleId) || {}).title || "")}</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost sm" data-milestone="${o.id}">Report availability confirmed</button>
+          <button class="btn ghost sm" data-inspect="${o.id}">Submit inspection report</button></div></div>`).join("") || '<div class="card"><p>No orders assigned yet.</p></div>'}`;
+      pane.querySelectorAll("[data-milestone]").forEach(b => b.onclick = () => {
+        G.save(db => { const o = db.orders.find(x => x.id === b.dataset.milestone); o.log.push({ at: G.now(), by: u.id, text: "Supplier confirmed availability" }); if (G.stageIndex(o.stage) < 1) o.stage = "Availability confirmed"; });
+        G.audit(u.id, "Supplier milestone on " + b.dataset.milestone, "order", b.dataset.milestone); G.toast("Milestone recorded."); view();
+      });
+      pane.querySelectorAll("[data-inspect]").forEach(b => b.onclick = () => {
+        G.save(db => { const o = db.orders.find(x => x.id === b.dataset.inspect); o.log.push({ at: G.now(), by: u.id, text: "Inspection report submitted by supplier" });
+          db.documents.unshift({ id: G.uid("doc"), orderId: o.id, name: "Inspection report (supplier).pdf", type: "Inspection", uploadedBy: u.id, at: G.now(), size: "—" }); });
+        G.toast("Inspection report submitted."); view();
+      });
+    }
+
+    if (tab === "documents") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Verification documents</h1><p>These are reviewed by our supplier team. Only verified suppliers can publish inventory.</p>
+        <div class="card"><div class="table-wrap"><table><tbody>
+          <tr><th>Status</th><td><span class="chip ${verified ? "ok" : "warn"}">${s.status}</span></td></tr>
+          <tr><th>Documents on file</th><td>${s.docs.length ? s.docs.map(G.esc).join("<br>") : "None uploaded yet"}</td></tr>
+          <tr><th>Trading since</th><td>${s.since}</td></tr>
+          <tr><th>Contact</th><td>${G.esc(s.contact)}</td></tr>
+        </tbody></table></div>
+        <div class="field" style="margin-top:12px"><label class="f">Upload another document</label><input id="df" type="file" multiple></div>
+        <button class="btn primary" id="dadd">Submit documents</button></div>`;
+      document.getElementById("dadd").onclick = () => {
+        const files = [...document.getElementById("df").files];
+        if (!files.length) { G.toast("Choose a file first."); return; }
+        G.save(db => { const x = db.suppliers.find(y => y.id === s.id); files.forEach(f => x.docs.push(f.name)); x.status = x.status === "pending" ? "under-review" : x.status; });
+        G.audit(u.id, "Supplier submitted documents", "supplier", s.id); G.toast("Documents submitted for review."); view();
+      };
+    }
+
+    if (tab === "profile") {
+      pane.innerHTML = `<h1 style="font-size:1.8rem">Business profile</h1><p>Shown to buyers once verified.</p>
+        <div class="card"><div class="form-grid">
+          <div><label class="f">Business name</label><input id="pn" value="${G.esc(s.name)}"></div>
+          <div><label class="f">City</label><input id="pc" value="${G.esc(s.city || "")}"></div>
+          <div><label class="f">Contact email</label><input id="pe" value="${G.esc(s.contact)}"></div>
+          <div><label class="f">Country</label><input value="${G.origin(s.country).name}" disabled></div>
+        </div><button class="btn primary" id="psave" style="margin-top:8px">Save profile</button></div>`;
+      document.getElementById("psave").onclick = () => {
+        G.save(db => { const x = db.suppliers.find(y => y.id === s.id); x.name = document.getElementById("pn").value; x.city = document.getElementById("pc").value; x.contact = document.getElementById("pe").value; });
+        G.toast("Profile saved."); view();
+      };
+    }
+  }
+  nav(); view();
+})();
+</script>
+</body>
+</html>

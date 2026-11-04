@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Become a verified supplier — GLOBAL AUTO DIRECT</title>
+<meta name="description" content="Apply for a verified supplier account and reach international buyers with coordinated shipping and inspection.">
+<meta property="og:title" content="Become a verified supplier — GLOBAL AUTO DIRECT">
+<meta property="og:description" content="Apply for a verified supplier account and reach international buyers with coordinated shipping and inspection.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="block" style="padding-top:38px"><div class="wrap" style="max-width:760px">
+  <span class="eyebrow">Suppliers</span><h1 style="font-size:clamp(1.8rem,3.6vw,2.6rem)">Supply vehicles to a global buyer network</h1>
+  <p>Exporters, dealers, inspection companies and freight partners can apply for a verified supplier account. Applications are reviewed by our supplier team; inventory cannot be published until verification is complete.</p>
+  <div class="card">
+    <form id="sf">
+      <div class="form-grid">
+        <div><label class="f">Business name *</label><input id="sname" required></div>
+        <div><label class="f">Country *</label><select id="scountry"></select></div>
+        <div><label class="f">City</label><input id="scity"></div>
+        <div><label class="f">Years trading</label><input id="syears" type="number" min="0" placeholder="5"></div>
+        <div><label class="f">Contact email *</label><input id="semail" type="email" required></div>
+        <div><label class="f">Contact phone</label><input id="sphone"></div>
+        <div><label class="f">Login password *</label><input id="spass" type="password" minlength="8" required></div>
+        <div><label class="f">Verification documents</label><input id="sdocs" type="file" multiple></div>
+      </div>
+      <div class="field"><label class="f">What do you supply?</label><textarea id="snotes" rows="3" placeholder="Vehicle types, monthly volume, export experience..."></textarea></div>
+      <p class="small">Uploading a document records its name and size in this demonstration build. Production stores documents in private object storage with signed access.</p>
+      <button class="btn primary" type="submit">Apply for verification</button>
+    </form>
+    <div id="sdone" class="hide"></div>
+  </div>
+</div></section>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+(function () {
+  const G = window.GAD;
+  G.mount("");
+  const d = G.db();
+  document.getElementById("scountry").innerHTML = d.origins.map(o => `<option value="${o.code}">${o.flag} ${o.name}</option>`).join("");
+  document.getElementById("sf").onsubmit = async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("sname").value.trim();
+    const email = document.getElementById("semail").value.trim();
+    const pass = document.getElementById("spass").value;
+    const supplier = {
+      id: G.uid("sup"), name, country: document.getElementById("scountry").value, city: document.getElementById("scity").value.trim(),
+      status: "pending", since: String(new Date().getFullYear() - Number(document.getElementById("syears").value || 0)), rating: null, vehicles: 0,
+      docs: [...document.getElementById("sdocs").files].map(f => f.name), contact: email, notes: document.getElementById("snotes").value.trim(),
+      appliedAt: G.now(),
+    };
+    const r = await G.register({ name, email, phone: document.getElementById("sphone").value, password: pass, role: "supplier", supplierId: supplier.id, country: supplier.country, currency: "USD" });
+    if (!r.ok) { G.toast(r.error); return; }
+    G.save(db => db.suppliers.unshift(supplier));
+    G.audit(null, "Supplier application received: " + name, "supplier", supplier.id);
+    document.getElementById("sf").classList.add("hide");
+    const done = document.getElementById("sdone");
+    done.classList.remove("hide");
+    done.innerHTML = `<div style="text-align:center;padding:10px"><div style="font-size:2.2rem">📄</div>
+      <h2>Application received</h2>
+      <p>Your supplier account is <b>pending review</b>. You can sign in now, but you cannot publish inventory until an administrator verifies your documents.</p>
+      <a class="btn primary" href="supplier.html">Open my supplier dashboard</a></div>`;
+  };
+})();
+</script>
+</body>
+</html>

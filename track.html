@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Track your vehicle shipment — GLOBAL AUTO DIRECT</title>
+<meta name="description" content="Track your imported vehicle through all 16 order stages, from enquiry to local delivery.">
+<meta property="og:title" content="Track your vehicle shipment — GLOBAL AUTO DIRECT">
+<meta property="og:description" content="Track your imported vehicle through all 16 order stages, from enquiry to local delivery.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="block" style="padding-top:40px"><div class="wrap" style="max-width:820px">
+  <span class="eyebrow">Tracking</span><h1 style="font-size:clamp(1.8rem,3.6vw,2.6rem)">Track a shipment</h1>
+  <p>Enter your order number (for example GAD-2026-1001) to see the current stage, vessel details and the full history on file.</p>
+  <form id="tf" class="card"><div class="field"><label class="f">Order number</label><input id="tcode" placeholder="GAD-2026-1001" required></div>
+  <button class="btn primary" type="submit">Track order</button></form>
+  <div id="tout"></div>
+</div></section>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+(function () {
+  const G = window.GAD;
+  G.mount("track.html");
+  const out = document.getElementById("tout");
+  const show = (code) => {
+    const d = G.db();
+    const o = d.orders.find(x => x.code.toLowerCase() === String(code).toLowerCase().trim());
+    if (!o) { out.innerHTML = '<div class="notice">No order found with that number. Check the number on your quotation email, or contact support.</div>'; return; }
+    const v = d.vehicles.find(x => x.id === o.vehicleId);
+    const ship = d.shipments.find(s => s.orderId === o.id);
+    out.innerHTML = `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div><h3 style="margin:0">${o.code}</h3><p class="small" style="margin:4px 0 0">${v ? G.esc(v.title) : "Vehicle"} · ${G.when(o.createdAt)}</p></div>
+        <span class="chip ${o.stage === "Completed" ? "ok" : "warn"}">${o.stage}</span>
+      </div>
+      <div style="margin:18px 0">${G.timeline(o)}</div>
+      ${ship ? `<div class="table-wrap"><table><tbody>
+        <tr><th>Vessel</th><td>${ship.vessel}</td></tr>
+        <tr><th>Container</th><td>${ship.container}</td></tr>
+        <tr><th>Bill of lading</th><td>${ship.billOfLading}</td></tr>
+        <tr><th>Route</th><td>${ship.departurePort} → ${ship.arrivalPort}</td></tr>
+        <tr><th>ETD / ETA</th><td>${ship.etd} / ${ship.eta}</td></tr>
+        <tr><th>Shipping line</th><td>${ship.shippingCompany}</td></tr>
+      </tbody></table></div>
+      <p class="small" style="margin-top:10px">${ship.trackingNote}</p>` : '<div class="notice">No shipment has been booked for this order yet.</div>'}
+      <p class="small">For your security, payment details and documents are only visible after signing in to your account.</p>
+    </div>`;
+  };
+  document.getElementById("tf").onsubmit = (e) => { e.preventDefault(); show(document.getElementById("tcode").value); };
+  if (G.qs("order")) show(G.qs("order"));
+})();
+</script>
+</body>
+</html>

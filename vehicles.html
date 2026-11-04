@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vehicle inventory — GLOBAL AUTO DIRECT</title>
+<meta name="description" content="Browse import-ready cars, SUVs, pickups, buses, motorcycles, electric vehicles, machinery and spare parts with advanced filters.">
+<meta property="og:title" content="Vehicle inventory — GLOBAL AUTO DIRECT">
+<meta property="og:description" content="Browse import-ready cars, SUVs, pickups, buses, motorcycles, electric vehicles, machinery and spare parts with advanced filters.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="block" style="padding-top:34px"><div class="wrap">
+  <span class="eyebrow">Inventory</span>
+  <h1 style="font-size:clamp(1.9rem,4vw,2.9rem)">Find your vehicle</h1>
+  <p style="max-width:70ch">Filter by category, origin country, brand, fuel and price. Every listing is demonstration data until supplier onboarding is complete.</p>
+  <div id="filterroot"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 16px;flex-wrap:wrap;gap:10px">
+    <div class="small" id="count"></div>
+    <div class="small">Showing prices in <b id="curlabel"></b> · <a href="#" id="curtoggle" style="color:#5AA0FF">change</a></div>
+  </div>
+  <div class="grid g4" id="results"></div>
+</div></section>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+(function () {
+  const G = window.GAD;
+  G.mount("vehicles.html");
+  const root = document.getElementById("filterroot");
+  const results = document.getElementById("results");
+  const count = document.getElementById("count");
+  document.getElementById("curlabel").textContent = G.cur();
+  document.getElementById("curtoggle").onclick = (e) => {
+    e.preventDefault();
+    const list = Object.keys(G.db().currencies);
+    const next = list[(list.indexOf(G.cur()) + 1) % list.length];
+    G.setCur(next);
+  };
+  const params = new URLSearchParams(location.search);
+  const draw = (f) => {
+    const list = G.apply(f);
+    G.grid(list, results);
+    count.textContent = list.length + " vehicle" + (list.length === 1 ? "" : "s") + " found";
+    const p = new URLSearchParams();
+    if (f.cat) p.set("category", f.cat); if (f.origin) p.set("origin", f.origin);
+    if (f.q) p.set("q", f.q); if (f.sort !== "new") p.set("sort", f.sort);
+    history.replaceState(null, "", location.pathname + (p.toString() ? "?" + p : ""));
+  };
+  const read = G.filterForm(root, draw);
+  if (params.get("category")) root.querySelector("#fcat").value = params.get("category");
+  if (params.get("origin")) root.querySelector("#forigin").value = params.get("origin");
+  if (params.get("q")) root.querySelector("#fq").value = params.get("q");
+  if (params.get("sort")) root.querySelector("#fsort").value = params.get("sort");
+  let f = read();
+  if (params.get("featured")) { const all = G.apply(f); G.grid(all.filter(v => v.featured).concat(all.filter(v => !v.featured)), results); count.textContent = all.length + " vehicles found"; }
+  else draw(f);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Custom vehicle import request — GLOBAL AUTO DIRECT</title>
+<meta name="description" content="Request any vehicle from Japan, China, Germany, Korea, the UAE or the USA. We confirm availability, arrange inspection and send a full landed-cost quotation.">
+<meta property="og:title" content="Custom vehicle import request — GLOBAL AUTO DIRECT">
+<meta property="og:description" content="Request any vehicle from Japan, China, Germany, Korea, the UAE or the USA. We confirm availability, arrange inspection and send a full landed-cost quotation.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="block" style="padding-top:34px"><div class="wrap" style="max-width:900px">
+  <span class="eyebrow">Custom import</span>
+  <h1 style="font-size:clamp(1.8rem,3.6vw,2.6rem)">Request any vehicle, from anywhere</h1>
+  <p>Tell us what you want and where it should land. We check availability with verified suppliers, arrange an inspection, and send you a full landed-cost quotation.</p>
+  <div id="reqform">
+    <form id="rf" class="card">
+      <div class="form-grid">
+        <div><label class="f">Full name *</label><input id="rname" required></div>
+        <div><label class="f">Email *</label><input id="remail" type="email" required></div>
+        <div><label class="f">Phone *</label><input id="rphone" required placeholder="+256..."></div>
+        <div><label class="f">Destination country *</label><select id="rdest"></select></div>
+        <div><label class="f">Preferred origin</label><select id="rorigin"></select></div>
+        <div><label class="f">Brand</label><input id="rbrand" placeholder="Toyota"></div>
+        <div><label class="f">Model</label><input id="rmodel" placeholder="Prado TX-L"></div>
+        <div><label class="f">Year</label><input id="ryear" type="number" min="1980" max="2027" placeholder="2020"></div>
+        <div><label class="f">New or used</label><select id="rcond"><option>Used</option><option>New</option><option>Either</option></select></div>
+        <div><label class="f">Maximum budget (USD)</label><input id="rbudget" type="number" min="0" step="500"></div>
+        <div><label class="f">Preferred condition</label><select id="rpref"><option>Excellent</option><option>Very good</option><option>Good</option><option>Any clean unit</option></select></div>
+        <div><label class="f">Reference photographs</label><input id="rfiles" type="file" accept="image/*" multiple></div>
+      </div>
+      <div class="field"><label class="f">Additional requirements</label><textarea id="rnotes" rows="3" placeholder="Colour, trim, sunroof, mileage limit, delivery timing..."></textarea></div>
+      <p class="small">By sending this request you agree that we may contact you about it. We do not share your details with suppliers until you approve a quotation.</p>
+      <button class="btn primary" type="submit">Send my import request</button>
+    </form>
+  </div>
+  <div id="reqdone" class="hide"></div>
+</div></section>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+(function () {
+  const G = window.GAD;
+  G.mount("import-request.html");
+  const d = G.db();
+  const u = G.currentUser();
+  document.getElementById("rdest").innerHTML = d.countries.map(c => `<option value="${c.code}">${c.flag} ${c.name}</option>`).join("");
+  document.getElementById("rorigin").innerHTML = `<option value="">Any origin</option>` + d.origins.map(o => `<option value="${o.code}">${o.flag} ${o.name}</option>`).join("");
+  if (u) { document.getElementById("rname").value = u.name; document.getElementById("remail").value = u.email; document.getElementById("rphone").value = u.phone || ""; document.getElementById("rdest").value = u.country || "UG"; }
+  const p = new URLSearchParams(location.search);
+  if (p.get("origin")) document.getElementById("rorigin").value = p.get("origin");
+  if (p.get("dest")) document.getElementById("rdest").value = p.get("dest");
+  if (p.get("price")) document.getElementById("rbudget").value = Math.round(Number(p.get("price")) * 1.6);
+  if (p.get("vehicle")) {
+    const v = d.vehicles.find(x => x.id === p.get("vehicle"));
+    if (v) { document.getElementById("rbrand").value = v.brand; document.getElementById("rmodel").value = v.model; document.getElementById("ryear").value = v.year; document.getElementById("rnotes").value = "Interested in listing " + v.id + " (" + v.title + ")."; }
+  }
+  document.getElementById("rf").onsubmit = async (e) => {
+    e.preventDefault();
+    const fileEl = document.getElementById("rfiles");
+    const files = [...(fileEl.files || [])].slice(0, 4).map(f => ({ name: f.name, size: Math.round(f.size / 1024) + " KB" }));
+    const req = {
+      id: G.uid("req"), code: "GAD-REQ-" + Math.floor(1000 + Math.random() * 9000),
+      userId: u ? u.id : null,
+      name: document.getElementById("rname").value.trim(), email: document.getElementById("remail").value.trim(),
+      phone: document.getElementById("rphone").value.trim(), destCountry: document.getElementById("rdest").value,
+      origin: document.getElementById("rorigin").value || "any", brand: document.getElementById("rbrand").value.trim(),
+      model: document.getElementById("rmodel").value.trim(), year: document.getElementById("ryear").value,
+      condition: document.getElementById("rcond").value, budgetUsd: Number(document.getElementById("rbudget").value || 0),
+      preferred: document.getElementById("rpref").value, notes: document.getElementById("rnotes").value.trim(),
+      files, status: "new", createdAt: G.now(),
+    };
+    if (!req.name || !req.email || !req.phone) { G.toast("Please fill your name, email and phone."); return; }
+    G.save(db => { db.requests.unshift(req); });
+    G.audit(u ? u.id : null, "Submitted import request " + req.code, "request", req.id);
+    document.getElementById("reqform").classList.add("hide");
+    const done = document.getElementById("reqdone");
+    done.classList.remove("hide");
+    done.innerHTML = `<div class="card" style="text-align:center">
+      <div style="font-size:2.4rem">✅</div>
+      <h2>Request received</h2>
+      <p>Your import request ID is <b style="color:#fff">${req.code}</b>. Keep it for reference.</p>
+      <p class="small">Our team has been notified. A sales manager reviews new requests, confirms supplier availability and sends a landed-cost quotation, usually within 2 working days.</p>
+      <div class="table-wrap" style="text-align:left;margin:18px 0"><table><tbody>
+        <tr><th>Vehicle</th><td>${G.esc(req.brand)} ${G.esc(req.model)} ${G.esc(req.year)}</td></tr>
+        <tr><th>Route</th><td>${req.origin === "any" ? "Any origin" : G.origin(req.origin).name} → ${G.country(req.destCountry).name}</td></tr>
+        <tr><th>Budget</th><td>${req.budgetUsd ? G.price(req.budgetUsd) : "Not specified"}</td></tr>
+        <tr><th>Status</th><td><span class="chip warn">Awaiting review</span></td></tr>
+      </tbody></table></div>
+      <a class="btn primary" href="account.html">Track it in my account</a>
+      <a class="btn ghost" href="vehicles.html" style="margin-left:8px">Keep browsing</a>
+    </div>`;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+})();
+</script>
+</body>
+</html>

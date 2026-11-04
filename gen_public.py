@@ -1,0 +1,204 @@
+# -*- coding: utf-8 -*-
+HEAD = '''<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title}</title>
+<meta name="description" content="{desc}">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script type="application/ld+json">{jsonld}</script>
+</head>
+<body>
+<div id="site-header"></div>
+{body}
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/ui.js"></script>
+<script>{script}</script>
+</body>
+</html>
+'''
+ORG = '{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}'
+
+def write(name, title, desc, body, script="", jsonld=ORG):
+    html = HEAD.format(title=title, desc=desc, body=body, script=script, jsonld=jsonld)
+    open(name, "w").write(html)
+    print("wrote", name, len(html))
+
+# ─────────────────────────────── HOME ───────────────────────────────
+home_body = '''
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Global automotive marketplace</span>
+      <h1>YOUR NEXT VEHICLE.<br><span>FROM ANYWHERE IN THE WORLD.</span></h1>
+      <p style="font-size:1.05rem;max-width:56ch">Discover vehicles from trusted international suppliers. Order from Japan, China, Germany and other automotive markets, with coordinated shipping and delivery to your destination.</p>
+      <div class="hero-cta">
+        <a class="btn primary" href="vehicles.html">Search vehicles</a>
+        <a class="btn ghost" href="import-request.html">Import a vehicle</a>
+        <a class="btn ghost" href="vehicles.html?featured=1">Explore inventory</a>
+      </div>
+      <div class="searchcard">
+        <div class="row">
+          <div><label class="f" for="hq">What are you looking for?</label><input id="hq" placeholder="Toyota Prado, Zongshen, van..."></div>
+          <div><label class="f" for="horigin">Origin country</label><select id="horigin"><option value="">Anywhere</option></select></div>
+          <div><label class="f" for="hdest">Deliver to</label><select id="hdest"></select></div>
+          <div><button class="btn primary" id="hsearch">Search</button></div>
+        </div>
+        <p class="small" style="margin:12px 0 0">Every listing on this platform is demonstration data while supplier onboarding is completed.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:linear-gradient(180deg,#0C1729,#081120)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span class="chip">Live import routes</span><span class="chip ok">6 origins</span></div>
+        <div id="routelist" class="small"></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card" style="margin:0"><div class="kpi"><div class="label">Landed cost engine</div><div class="val">13</div><div class="small">cost lines calculated per vehicle</div></div></div>
+        <div class="card" style="margin:0"><div class="kpi"><div class="label">Order stages</div><div class="val">16</div><div class="small">tracked from enquiry to delivery</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block"><div class="wrap">
+  <div class="sec-head"><div><span class="eyebrow">Featured</span><h2>Vehicles worth a closer look</h2><p>Hand-picked demonstration listings across our main categories.</p></div><a class="btn ghost sm" href="vehicles.html">View all inventory</a></div>
+  <div class="grid g4" id="featured"></div>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <div class="sec-head"><div><span class="eyebrow">Browse</span><h2>Shop by vehicle category</h2><p>Eleven categories, from city cars to heavy machinery and spare parts.</p></div></div>
+  <div class="grid g4" id="cats"></div>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <div class="sec-head"><div><span class="eyebrow">Origins</span><h2>Shop by country</h2><p>Buy from the world's most active vehicle export markets.</p></div></div>
+  <div class="grid g3" id="countries"></div>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <div class="sec-head"><div><span class="eyebrow">Process</span><h2>How international importing works</h2><p>A coordinated chain of verified partners, one point of contact for you.</p></div><a class="btn ghost sm" href="guides.html">Read the import guides</a></div>
+  <div class="steps">
+    <div class="step"><b>Tell us what you want</b><p>Choose from inventory or send a custom import request with your budget and destination.</p></div>
+    <div class="step"><b>We verify the source</b><p>The supplier is verified, availability confirmed and an independent inspection arranged before money moves.</p></div>
+    <div class="step"><b>Costs agreed in writing</b><p>You receive a full landed-cost quotation: vehicle, freight, insurance, duties, clearance and delivery.</p></div>
+    <div class="step"><b>Ship, clear, deliver</b><p>We book freight, track the shipment, coordinate customs clearance and hand over the vehicle.</p></div>
+  </div>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <div class="sec-head"><div><span class="eyebrow">Trust</span><h2>Why customers trust us</h2><p>Structured process, documented evidence, and no invented information.</p></div></div>
+  <div class="trust">
+    <div><div class="n">Verified</div><p class="small">Supplier licences and inspection reports are checked before inventory can be quoted.</p></div>
+    <div><div class="n">Transparent</div><p class="small">Thirteen cost lines shown before you commit. No hidden landing charges.</p></div>
+    <div><div class="n">Documented</div><p class="small">Bills of lading, inspections and customs paperwork kept on your order file.</p></div>
+    <div><div class="n">Supported</div><p class="small">WhatsApp and email support in English, with a named person on your order.</p></div>
+  </div>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <div class="sec-head"><div><span class="eyebrow">Manufacturers</span><h2>Featured manufacturers</h2><p>Brands we source most often across our origin markets.</p></div></div>
+  <div class="pill-nav" id="brandpills"></div>
+  <div class="grid g4" id="bystrands"></div>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <div class="sec-head"><div><span class="eyebrow">New in</span><h2>Latest arrivals</h2><p>Freshly added to the demonstration inventory.</p></div><a class="btn ghost sm" href="vehicles.html?sort=year">See the newest year models</a></div>
+  <div class="grid g4" id="latest"></div>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <div class="sec-head"><div><span class="eyebrow">Logistics</span><h2>Shipping and logistics network</h2><p>Sailings and air freight from six origins into East Africa.</p></div><a class="btn ghost sm" href="calculator.html">Calculate a landed cost</a></div>
+  <div class="table-wrap"><table><thead><tr><th>Origin</th><th>Export port</th><th>Sea freight (est.)</th><th>Sea transit</th><th>Air freight (est.)</th><th>Air transit</th></tr></thead><tbody id="routes"></tbody></table></div>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <div class="sec-head"><div><span class="eyebrow">Customers</span><h2>Customer testimonials</h2><p>Illustrative feedback from the pilot programme in Uganda.</p></div></div>
+  <div class="grid g3">
+    <div class="quote"><p>“I asked for a Prado with a clean inspection report. They sent the JEVIC sheet and a video walk-round before I paid the deposit.”</p><div class="who"><div class="av">AK</div><div><b>Amina K.</b><div class="small">Kampala</div></div></div></div>
+    <div class="quote"><p>“The quotation listed every duty line. My clearing agent in Mombasa confirmed the figures matched what was on the papers.”</p><div class="who"><div class="av">JM</div><div><b>Joseph M.</b><div class="small">Fort Portal</div></div></div></div>
+    <div class="quote"><p>“Three Zongshen bikes arrived crated, all three with the same serials as the invoice. Customs clearance was handled for us.”</p><div class="who"><div class="av">SN</div><div><b>Sarah N.</b><div class="small">Mbarara</div></div></div></div>
+  </div>
+</div></section>
+
+<section class="block"><div class="wrap" style="max-width:900px">
+  <div class="sec-head"><div><span class="eyebrow">Questions</span><h2>Frequently asked questions</h2></div></div>
+  <details class="faq"><summary>Do I pay the full vehicle price upfront?</summary><p>No. A booking deposit secures the vehicle, then agreed milestone payments follow: on purchase, on shipment, and the balance before delivery. Exact terms are in your quotation.</p></details>
+  <details class="faq"><summary>How are duties calculated?</summary><p>Each destination country has its own rule set in our system: duty, excise by engine size, VAT and clearance charges. The calculator applies the destination's rules to the CIF value and shows every line. Figures are estimates until a licensed clearing agent confirms them.</p></details>
+  <details class="faq"><summary>Can I inspect the vehicle before it ships?</summary><p>Yes. We arrange an independent third-party inspection and send the report with photographs and video before the purchase stage is authorised.</p></details>
+  <details class="faq"><summary>What if the vehicle is not eligible in my country?</summary><p>We check age limits, drive side and emissions rules before quotation. If eligibility is uncertain we tell you and pause rather than take payment.</p></details>
+  <details class="faq"><summary>Are the vehicles on this website real supplier stock?</summary><p>Every vehicle shown is clearly labelled demonstration data. Once supplier onboarding is complete, live inventory will replace these listings and will carry the supplier's own photographs and inspection reports.</p></details>
+</div></section>
+
+<section class="block" style="border-bottom:0"><div class="wrap">
+  <div class="card" style="background:linear-gradient(120deg,#0A1B36,#071022);display:grid;grid-template-columns:1.2fr 1fr;gap:26px;align-items:center">
+    <div><span class="eyebrow">Stay informed</span><h2 style="margin-bottom:.3em">New arrivals and import guides, monthly</h2><p>One short email a month: fresh stock from our origins, duty changes and shipping updates. No spam.</p></div>
+    <form id="news" style="display:flex;gap:10px;flex-wrap:wrap">
+      <input type="email" id="newsemail" placeholder="you@example.com" required style="flex:1;min-width:200px">
+      <button class="btn primary" type="submit">Subscribe</button>
+    </form>
+  </div>
+</div></section>
+'''
+
+home_js = r'''
+(function () {
+  const G = window.GAD;
+  G.mount("index.html");
+  const d = G.db();
+  document.getElementById("horigin").innerHTML += d.origins.map(o => `<option value="${o.code}">${o.flag} ${o.name}</option>`).join("");
+  document.getElementById("hdest").innerHTML = d.countries.map(c => `<option value="${c.code}">${c.flag} ${c.name}</option>`).join("");
+  document.getElementById("hsearch").onclick = () => {
+    const p = new URLSearchParams();
+    const q = document.getElementById("hq").value.trim();
+    const o = document.getElementById("horigin").value;
+    if (q) p.set("q", q); if (o) p.set("origin", o);
+    location.href = "vehicles.html?" + p.toString();
+  };
+  document.getElementById("routelist").innerHTML = d.origins.slice(0, 6).map(o =>
+    `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.08)">
+      <span>${o.flag} ${o.name} → ${G.country("UG").flag} Kampala</span><b>${o.seaDays}d</b></div>`).join("");
+
+  document.getElementById("featured").innerHTML = d.vehicles.filter(v => v.featured).slice(0, 4).map(G.card).join("");
+  document.getElementById("latest").innerHTML = d.vehicles.slice().sort((a, b) => b.year - a.year).slice(0, 4).map(G.card).join("");
+
+  document.getElementById("cats").innerHTML = G.CATEGORIES.map(([k, n, ico, sub]) => {
+    const count = d.vehicles.filter(v => v.category === k).length;
+    return `<a class="tile" href="vehicles.html?category=${k}"><div class="ico">${ico}</div><div><b>${n}</b><span>${count} listing${count === 1 ? "" : "s"} · ${sub}</span></div></a>`;
+  }).join("");
+
+  document.getElementById("countries").innerHTML = d.origins.map(o => {
+    const count = d.vehicles.filter(v => v.origin === o.code).length;
+    return `<a class="card" style="margin:0;display:block" href="country-${o.code.toLowerCase()}.html">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">${o.flag} ${o.name}</h3><span class="chip">${count} listing${count === 1 ? "" : "s"}</span></div>
+      <p class="small" style="margin:10px 0 0">${o.note}</p>
+      <p class="small" style="margin:8px 0 0;color:#5AA0FF">Export port ${o.port} · ${o.seaDays} days by sea</p></a>`;
+  }).join("");
+
+  const brands = [...new Set(d.vehicles.map(v => v.brand))];
+  document.getElementById("brandpills").innerHTML = brands.map(b => `<a href="vehicles.html?q=${encodeURIComponent(b)}">${b}</a>`).join("");
+  document.getElementById("bystrands").innerHTML = d.vehicles.slice(0, 4).map(G.card).join("");
+
+  document.getElementById("routes").innerHTML = d.origins.map(o => `<tr><td>${o.flag} ${o.name}</td><td>${o.port}</td><td>${G.price(o.sea)}</td><td>${o.seaDays} days</td><td>${G.price(o.air)}</td><td>${o.airDays} days</td></tr>`).join("");
+
+  document.getElementById("news").onsubmit = (e) => {
+    e.preventDefault();
+    const email = document.getElementById("newsemail").value.trim();
+    G.save(db => { db.newsletter = db.newsletter || []; db.newsletter.push({ email, at: G.now() }); });
+    e.target.reset();
+    G.toast("Thank you. You are on the list.");
+  };
+})();
+'''
+write("index.html", "GLOBAL AUTO DIRECT — Buy vehicles worldwide, delivered to your door",
+      "Import cars, SUVs, pickups, buses, motorcycles and machinery from Japan, China, Germany, South Korea, UAE and the USA. Transparent landed-cost calculator and tracked delivery.",
+      home_body, home_js, ORG)

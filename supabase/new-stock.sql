@@ -1,0 +1,193 @@
+set search_path to gad, public;
+insert into gad.vehicles
+ (legacy_id,title,brand,model,year,category,price_usd,currency,mileage_km,engine_cc,fuel,
+  transmission,drivetrain,exterior,interior,condition,vin,origin_code,supplier_id,images,
+  specifications,video_url,export_available,shipping_usd,delivery_days,destinations,featured,is_demo,status)
+values
+(
+  'v25', 'Toyota Land Cruiser 300 VX', 'Toyota', 'Land Cruiser 300 VX', 2026,
+  'suvs', 96500, 'USD', 0,
+  3500, 'Petrol', 'Automatic', '4WD',
+  'Precious White', 'Black leather', 'New', 'JTMHV05J204000125', 'JP',
+  (select id from gad.suppliers where legacy_id = 'sup_jp1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23101B2E%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231D5FD1%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M55%20305%20L100%20225%20Q115%20205%20150%20203%20L320%20203%20Q352%20205%20366%20228%20L405%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M55%20305%20L405%20305%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22122%22%20cy%3D%22310%22%20r%3D%2233%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%22310%22%20r%3D%2233%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M120%20250%20L200%20232%20L330%20232%20L330%20268%20L120%20268%20Z%22%20fill%3D%22none%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%226%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 3 year warranty","videoInspection":true}'::jsonb,
+  null, true, 1450, 55,
+  '{"UG","KE","TZ"}'::text[], true, true, 'published'
+),
+(
+  'v26', 'Toyota Hilux Double Cab 2.8 Legend', 'Toyota', 'Hilux Legend', 2026,
+  'pickups', 48900, 'USD', 0,
+  2800, 'Diesel', 'Automatic', '4WD',
+  'Attitude Black', 'Black leather', 'New', 'AHTKB3CD502600811', 'JP',
+  (select id from gad.suppliers where legacy_id = 'sup_jp1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230A1424%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%232E7DFF%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M55%20305%20L95%20235%20Q108%20220%20140%20219%20L245%20219%20L265%20200%20L370%20200%20L392%20240%20L410%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M55%20305%20L410%20305%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%22310%22%20r%3D%2232%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22345%22%20cy%3D%22310%22%20r%3D%2232%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 3 year warranty","videoInspection":true}'::jsonb,
+  null, true, 1450, 55,
+  '{"UG","KE","RW"}'::text[], true, true, 'published'
+),
+(
+  'v27', 'Toyota Hiace Super GL 13 Seater', 'Toyota', 'Hiace Super GL', 2026,
+  'buses', 42700, 'USD', 0,
+  2800, 'Diesel', 'Automatic', 'RWD',
+  'Super White', 'Grey fabric', 'New', 'TRH2002601177', 'JP',
+  (select id from gad.suppliers where legacy_id = 'sup_jp1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230F1A2B%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%233B4B70%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Crect%20x%3D%2270%22%20y%3D%22175%22%20width%3D%22330%22%20height%3D%22130%22%20rx%3D%2216%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M100%20205%20L200%20205%20L200%20250%20L100%20250%20Z%20M220%20205%20L330%20205%20L330%20250%20L220%20250%20Z%22%20fill%3D%22none%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%226%22%2F%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%22312%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22345%22%20cy%3D%22312%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 3 year warranty","videoInspection":true}'::jsonb,
+  null, true, 1450, 58,
+  '{"UG","KE"}'::text[], false, true, 'published'
+),
+(
+  'v28', 'Isuzu D-Max 3.0 LSE Double Cab', 'Isuzu', 'D-Max LSE', 2026,
+  'pickups', 37200, 'USD', 0,
+  3000, 'Diesel', 'Automatic', '4WD',
+  'Sapphire Blue', 'Black leather', 'New', 'MPATFS40JRT600042', 'AE',
+  (select id from gad.suppliers where legacy_id = 'sup_ae1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230B1B33%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23123E8F%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M55%20305%20L95%20235%20Q108%20220%20140%20219%20L245%20219%20L265%20200%20L370%20200%20L392%20240%20L410%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M55%20305%20L410%20305%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%22310%22%20r%3D%2232%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22345%22%20cy%3D%22310%22%20r%3D%2232%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 3 year warranty","videoInspection":true}'::jsonb,
+  null, true, 900, 30,
+  '{"UG","TZ"}'::text[], false, true, 'published'
+),
+(
+  'v29', 'Isuzu FRR 90 Cargo Truck', 'Isuzu', 'FRR 90', 2026,
+  'commercial', 51800, 'USD', 0,
+  5190, 'Diesel', 'Manual', 'RWD',
+  'White', 'Grey', 'New', 'JAANPR75LR7002211', 'JP',
+  (select id from gad.suppliers where legacy_id = 'sup_jp1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23101B2E%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231D5FD1%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Crect%20x%3D%2290%22%20y%3D%22230%22%20width%3D%22150%22%20height%3D%2290%22%20rx%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M240%20250%20L330%20210%20L370%20250%20L300%20280%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Ccircle%20cx%3D%22140%22%20cy%3D%22330%22%20r%3D%2234%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22320%22%20cy%3D%22330%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new","videoInspection":true}'::jsonb,
+  null, true, 1750, 60,
+  '{"UG","KE"}'::text[], false, true, 'published'
+),
+(
+  'v30', 'BYD Seal 5 EV Luxury', 'BYD', 'Seal 5', 2026,
+  'electric-cars', 28400, 'USD', 0,
+  0, 'Electric', 'Automatic', 'RWD',
+  'Atlantis Grey', 'Black vegan leather', 'New', 'LC0CE4CC1S0117766', 'CN',
+  (select id from gad.suppliers where legacy_id = 'sup_cn1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230A1424%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%232E7DFF%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M60%20300%20L110%20235%20Q125%20215%20155%20213%20L305%20213%20Q335%20215%20350%20235%20L400%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M60%20300%20L400%20300%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22125%22%20cy%3D%22305%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22335%22%20cy%3D%22305%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M150%20240%20L200%20240%20L200%20265%20L135%20265%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%227%22%20fill%3D%22none%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 8 year battery warranty","videoInspection":true}'::jsonb,
+  null, true, 1150, 45,
+  '{"UG","KE","TZ"}'::text[], true, true, 'published'
+),
+(
+  'v31', 'BYD Atto 3 Extended Range', 'BYD', 'Atto 3', 2026,
+  'electric-cars', 26700, 'USD', 0,
+  0, 'Electric', 'Automatic', 'FWD',
+  'Forest Green', 'Black leather', 'New', 'LC0C74C47S0099121', 'CN',
+  (select id from gad.suppliers where legacy_id = 'sup_cn1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230F1A2B%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%233B4B70%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M55%20305%20L100%20225%20Q115%20205%20150%20203%20L320%20203%20Q352%20205%20366%20228%20L405%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M55%20305%20L405%20305%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22122%22%20cy%3D%22310%22%20r%3D%2233%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%22310%22%20r%3D%2233%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M120%20250%20L200%20232%20L330%20232%20L330%20268%20L120%20268%20Z%22%20fill%3D%22none%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%226%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 8 year battery warranty","videoInspection":true}'::jsonb,
+  null, true, 1150, 45,
+  '{"UG","RW"}'::text[], false, true, 'published'
+),
+(
+  'v32', 'Chery Tiggo 8 Pro Max', 'Chery', 'Tiggo 8 Pro', 2026,
+  'suvs', 24900, 'USD', 0,
+  2000, 'Petrol', 'Automatic', 'FWD',
+  'Meteor Grey', 'Brown leather', 'New', 'LVVDB21B6SD003311', 'CN',
+  (select id from gad.suppliers where legacy_id = 'sup_cn1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230B1B33%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23123E8F%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M55%20305%20L100%20225%20Q115%20205%20150%20203%20L320%20203%20Q352%20205%20366%20228%20L405%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M55%20305%20L405%20305%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22122%22%20cy%3D%22310%22%20r%3D%2233%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%22310%22%20r%3D%2233%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M120%20250%20L200%20232%20L330%20232%20L330%20268%20L120%20268%20Z%22%20fill%3D%22none%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%226%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 5 year warranty","videoInspection":true}'::jsonb,
+  null, true, 1150, 45,
+  '{"UG"}'::text[], false, true, 'published'
+),
+(
+  'v33', 'Haval Jolion HEV Premium', 'Haval', 'Jolion HEV', 2026,
+  'suvs', 19800, 'USD', 0,
+  1500, 'Hybrid', 'Automatic', 'FWD',
+  'Hamilton White', 'Black leather', 'New', 'LGWEE4A41SD208844', 'CN',
+  (select id from gad.suppliers where legacy_id = 'sup_cn1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23101B2E%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231D5FD1%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M55%20305%20L100%20225%20Q115%20205%20150%20203%20L320%20203%20Q352%20205%20366%20228%20L405%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M55%20305%20L405%20305%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22122%22%20cy%3D%22310%22%20r%3D%2233%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%22310%22%20r%3D%2233%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M120%20250%20L200%20232%20L330%20232%20L330%20268%20L120%20268%20Z%22%20fill%3D%22none%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%226%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 5 year warranty","videoInspection":true}'::jsonb,
+  null, true, 1150, 45,
+  '{"UG","KE"}'::text[], false, true, 'published'
+),
+(
+  'v34', 'Hyundai Tucson 1.6T Premium', 'Hyundai', 'Tucson', 2026,
+  'suvs', 31200, 'USD', 0,
+  1600, 'Petrol', 'Automatic', 'AWD',
+  'Amazon Grey', 'Black leather', 'New', 'KMHJB81DMSU112233', 'KR',
+  (select id from gad.suppliers where legacy_id = 'sup_kr1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230A1424%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%232E7DFF%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M55%20305%20L100%20225%20Q115%20205%20150%20203%20L320%20203%20Q352%20205%20366%20228%20L405%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M55%20305%20L405%20305%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22122%22%20cy%3D%22310%22%20r%3D%2233%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%22310%22%20r%3D%2233%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M120%20250%20L200%20232%20L330%20232%20L330%20268%20L120%20268%20Z%22%20fill%3D%22none%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%226%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 5 year warranty","videoInspection":true}'::jsonb,
+  null, true, 1200, 42,
+  '{"UG"}'::text[], false, true, 'published'
+),
+(
+  'v35', 'Kia Sportage GT-Line', 'Kia', 'Sportage GT-Line', 2026,
+  'suvs', 29800, 'USD', 0,
+  1600, 'Petrol', 'Automatic', 'AWD',
+  'Snow White Pearl', 'Black suede', 'New', 'KNAPU81BDS7441120', 'KR',
+  (select id from gad.suppliers where legacy_id = 'sup_kr1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230F1A2B%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%233B4B70%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M55%20305%20L100%20225%20Q115%20205%20150%20203%20L320%20203%20Q352%20205%20366%20228%20L405%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M55%20305%20L405%20305%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22122%22%20cy%3D%22310%22%20r%3D%2233%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%22310%22%20r%3D%2233%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M120%20250%20L200%20232%20L330%20232%20L330%20268%20L120%20268%20Z%22%20fill%3D%22none%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%226%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 5 year warranty","videoInspection":true}'::jsonb,
+  null, true, 1200, 42,
+  '{"UG","RW"}'::text[], false, true, 'published'
+),
+(
+  'v36', 'Mercedes-Benz C200 AMG Line', 'Mercedes-Benz', 'C200 AMG Line', 2026,
+  'cars', 58900, 'USD', 0,
+  2000, 'Petrol', 'Automatic', 'RWD',
+  'Obsidian Black', 'Black Artico', 'New', 'W1KAF4HB1SR203344', 'DE',
+  (select id from gad.suppliers where legacy_id = 'sup_de1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230B1B33%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23123E8F%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M60%20300%20L110%20235%20Q125%20215%20155%20213%20L305%20213%20Q335%20215%20350%20235%20L400%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M60%20300%20L400%20300%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22125%22%20cy%3D%22305%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22335%22%20cy%3D%22305%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M150%20240%20L200%20240%20L200%20265%20L135%20265%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%227%22%20fill%3D%22none%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 2 year warranty","videoInspection":true}'::jsonb,
+  null, true, 1550, 60,
+  '{"UG","KE"}'::text[], true, true, 'published'
+),
+(
+  'v37', 'BMW 320i M Sport', 'BMW', '320i M Sport', 2026,
+  'cars', 52400, 'USD', 0,
+  2000, 'Petrol', 'Automatic', 'RWD',
+  'Alpine White', 'Black Sensatec', 'New', 'WBA5R1C09SFJ88901', 'DE',
+  (select id from gad.suppliers where legacy_id = 'sup_de1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23101B2E%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231D5FD1%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M60%20300%20L110%20235%20Q125%20215%20155%20213%20L305%20213%20Q335%20215%20350%20235%20L400%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M60%20300%20L400%20300%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22125%22%20cy%3D%22305%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22335%22%20cy%3D%22305%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M150%20240%20L200%20240%20L200%20265%20L135%20265%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%227%22%20fill%3D%22none%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 2 year warranty","videoInspection":true}'::jsonb,
+  null, true, 1550, 60,
+  '{"UG"}'::text[], false, true, 'published'
+),
+(
+  'v38', 'Volkswagen Polo 1.0 TSI', 'Volkswagen', 'Polo TSI', 2026,
+  'cars', 19600, 'USD', 0,
+  1000, 'Petrol', 'Automatic', 'FWD',
+  'Kings Red', 'Grey cloth', 'New', 'WVWZZZAWZSY002211', 'DE',
+  (select id from gad.suppliers where legacy_id = 'sup_de1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230A1424%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%232E7DFF%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M60%20300%20L110%20235%20Q125%20215%20155%20213%20L305%20213%20Q335%20215%20350%20235%20L400%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M60%20300%20L400%20300%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22125%22%20cy%3D%22305%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22335%22%20cy%3D%22305%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M150%20240%20L200%20240%20L200%20265%20L135%20265%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%227%22%20fill%3D%22none%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 2 year warranty","videoInspection":true}'::jsonb,
+  null, true, 1550, 60,
+  '{"UG"}'::text[], false, true, 'published'
+),
+(
+  'v39', 'Ford Ranger Wildtrak 2.0 BiTurbo', 'Ford', 'Ranger Wildtrak', 2026,
+  'pickups', 44300, 'USD', 0,
+  2000, 'Diesel', 'Automatic', '4WD',
+  'Luxe Yellow', 'Black leather', 'New', 'AFAPXXMJ2PSW12009', 'US',
+  (select id from gad.suppliers where legacy_id = 'sup_us1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230F1A2B%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%233B4B70%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M55%20305%20L95%20235%20Q108%20220%20140%20219%20L245%20219%20L265%20200%20L370%20200%20L392%20240%20L410%20300%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M55%20305%20L410%20305%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%22310%22%20r%3D%2232%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22345%22%20cy%3D%22310%22%20r%3D%2232%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 3 year warranty","videoInspection":true}'::jsonb,
+  null, true, 1600, 62,
+  '{"UG","KE"}'::text[], false, true, 'published'
+),
+(
+  'v40', 'Zongshen RX6 600 Adventure', 'Zongshen', 'RX6 600', 2026,
+  'zongshen', 6450, 'USD', 0,
+  600, 'Petrol', 'Manual', 'Chain',
+  'Desert Tan', '—', 'New', 'ZS600RX6S0012277', 'CN',
+  (select id from gad.suppliers where legacy_id = 'sup_cn1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230B1B33%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23123E8F%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%22300%22%20r%3D%2244%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22350%22%20cy%3D%22300%22%20r%3D%2244%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M130%20300%20L215%20235%20L300%20235%20L350%20300%20M215%20235%20L250%20300%20L330%20300%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%228%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M300%20235%20L335%20196%20L372%20205%22%20fill%3D%22none%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%228%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 2 year warranty","videoInspection":true}'::jsonb,
+  null, true, 980, 40,
+  '{"UG","KE","TZ","RW"}'::text[], true, true, 'published'
+),
+(
+  'v41', 'Zongshen ZS150 Cargo Tricycle', 'Zongshen', 'ZS150 Tricycle', 2026,
+  'zongshen', 1780, 'USD', 0,
+  150, 'Petrol', 'Manual', 'Chain',
+  'Blue', '—', 'New', 'ZS150TRS0266118', 'CN',
+  (select id from gad.suppliers where legacy_id = 'sup_cn1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23101B2E%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231D5FD1%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%22300%22%20r%3D%2244%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22350%22%20cy%3D%22300%22%20r%3D%2244%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M130%20300%20L215%20235%20L300%20235%20L350%20300%20M215%20235%20L250%20300%20L330%20300%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%228%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M300%20235%20L335%20196%20L372%20205%22%20fill%3D%22none%22%20stroke%3D%22%237EA6E0%22%20stroke-width%3D%228%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new, 1 year warranty","videoInspection":true}'::jsonb,
+  null, true, 940, 40,
+  '{"UG","TZ"}'::text[], false, true, 'published'
+),
+(
+  'v42', 'Komatsu PC130-8 Excavator', 'Komatsu', 'PC130-8', 2026,
+  'heavy-machinery', 128000, 'USD', 0,
+  4400, 'Diesel', 'Automatic', 'Tracked',
+  'Komatsu Yellow', 'Grey', 'New', 'KMTPC130CS000455', 'JP',
+  (select id from gad.suppliers where legacy_id = 'sup_jp1'),
+  '["data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20460%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230A1424%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%232E7DFF%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22460%22%20height%3D%22380%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22392%22%20cy%3D%2266%22%20r%3D%22120%22%20fill%3D%22rgba(255%2C255%2C255%2C.05)%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22330%22%20r%3D%2290%22%20fill%3D%22rgba(0%2C0%2C0%2C.18)%22%2F%3E%3Cg%20opacity%3D%22.95%22%3E%3Crect%20x%3D%2290%22%20y%3D%22230%22%20width%3D%22150%22%20height%3D%2290%22%20rx%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23DCE6F7%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M240%20250%20L330%20210%20L370%20250%20L300%20280%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%20stroke-linejoin%3D%22round%22%2F%3E%3Ccircle%20cx%3D%22140%22%20cy%3D%22330%22%20r%3D%2234%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3Ccircle%20cx%3D%22320%22%20cy%3D%22330%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%239DB4D6%22%20stroke-width%3D%229%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2226%22%20y%3D%2244%22%20fill%3D%22rgba(255%2C255%2C255%2C.5)%22%20font-family%3D%22Inter%2Csystem-ui%22%20font-size%3D%2215%22%20font-weight%3D%22600%22%20letter-spacing%3D%223%22%3EGLOBAL%20AUTO%20DIRECT%3C%2Ftext%3E%3C%2Fsvg%3E"]'::jsonb, '{"grade":"Factory new","videoInspection":true}'::jsonb,
+  null, true, 2600, 70,
+  '{"UG"}'::text[], false, true, 'published'
+)
+on conflict (legacy_id) do update set
+  price_usd = excluded.price_usd, mileage_km = excluded.mileage_km,
+  condition = excluded.condition, status = excluded.status, updated_at = now();
+select count(*) as total,
+       count(*) filter (where condition = 'New') as brand_new,
+       count(*) filter (where condition <> 'New') as used
+from gad.vehicles;

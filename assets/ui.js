@@ -11,7 +11,7 @@
     return `<article class="car fade">
       <a class="ph" href="vehicle.html?id=${v.id}">
         <img src="${v.art}" alt="${G.esc(v.title)}" loading="lazy">
-        <div class="chips"><span class="chip demo">Demonstration listing</span>${v.condition === "New" ? '<span class="chip ok">New</span>' : ""}</div>
+        <div class="chips"><span class="chip demo">Demonstration listing</span>${v.condition === "New" ? '<span class="chip ok">Brand new</span>' : '<span class="chip">Used</span>'}</div>
       </a>
       <div class="body">
         <h3><a href="vehicle.html?id=${v.id}">${G.esc(v.title)}</a></h3>
@@ -47,6 +47,7 @@
         <div><label class="f">Brand</label><select id="fbrand"><option value="">Any brand</option>${brands.map((b) => `<option>${b}</option>`).join("")}</select></div>
         <div><label class="f">Min price (USD)</label><input id="fmin" type="number" min="0" step="500" placeholder="0"></div>
         <div><label class="f">Max price (USD)</label><input id="fmax" type="number" min="0" step="500" placeholder="Any"></div>
+        <div><label class="f">New or used</label><select id="fcond"><option value="">Any condition</option><option value="new">Brand new only</option><option value="used">Used only</option></select></div>
         <div><label class="f">Fuel</label><select id="ffuel"><option value="">Any</option><option>Petrol</option><option>Diesel</option><option>Electric</option><option>Hybrid</option></select></div>
         <div><label class="f">Sort by</label><select id="fsort"><option value="new">Newest first</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option><option value="year">Year: newest</option></select></div>
       </div>`;
@@ -58,6 +59,7 @@
       min: Number(root.querySelector("#fmin").value || 0),
       max: Number(root.querySelector("#fmax").value || Infinity),
       fuel: root.querySelector("#ffuel").value,
+      cond: root.querySelector("#fcond").value,
       sort: root.querySelector("#fsort").value,
     });
     root.addEventListener("change", () => onChange(read()));
@@ -72,6 +74,8 @@
     if (f.origin) list = list.filter((v) => v.origin === f.origin);
     if (f.brand) list = list.filter((v) => v.brand === f.brand);
     if (f.fuel) list = list.filter((v) => v.fuel === f.fuel);
+    if (f.cond === "new") list = list.filter((v) => v.condition === "New");
+    if (f.cond === "used") list = list.filter((v) => v.condition !== "New");
     list = list.filter((v) => v.priceUsd >= (f.min || 0) && v.priceUsd <= (f.max || Infinity));
     const order = { new: (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0), low: (a, b) => a.priceUsd - b.priceUsd, high: (a, b) => b.priceUsd - a.priceUsd, year: (a, b) => b.year - a.year };
     return list.slice().sort(order[f.sort] || order.new);

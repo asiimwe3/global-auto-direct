@@ -90,7 +90,7 @@
           <div class="card"><h3 style="margin-top:0">Country performance</h3>
             <div class="table-wrap"><table><tbody>${Object.keys(byCountry).map(c => `<tr><th style="position:static">${G.origin(c).flag} ${G.origin(c).name}</th><td>${G.price(byCountry[c])}</td></tr>`).join("") || '<tr><td>No order value yet.</td></tr>'}</tbody></table></div></div>
           <div class="card"><h3 style="margin-top:0">Supplier performance</h3>
-            <div class="table-wrap"><table><tbody>${d.suppliers.map(s => `<tr><th style="position:static">${G.esc(s.name)}</th><td>${s.vehicles} listings · ${s.status}</td></tr>`).join("")}</tbody></table></div></div>
+            <div class="table-wrap"><table><tbody>${d.suppliers.map(s => `<tr><th style="position:static">${G.esc(s.name)}</th><td>${((s.vehicles && s.vehicles.length) || G.db().vehicles.filter((v) => v.supplierId === s.id).length)} listings · ${s.status}</td></tr>`).join("")}</tbody></table></div></div>
         </div>
         <div class="card"><h3 style="margin-top:0">Recent activity</h3>${d.audits.slice(0, 8).map(a => `<p class="small" style="margin:0 0 6px">${G.when(a.at)} — ${G.esc(a.action)}</p>`).join("")}</div>`;
     }

@@ -136,7 +136,7 @@
         status: String(s.status || "pending").replace(/-/g, "_"), rating: s.rating || 0,
       }),
       from: (r) => ({
-        id: r.legacy_id || r.id, dbId: r.id, name: r.name, country: r.country_code, city: r.city,
+        id: r.id, legacyId: r.legacy_id, dbId: r.id, ownerId: r.owner_id, name: r.name, country: r.country_code, city: r.city,
         email: r.contact_email, phone: r.contact_phone, status: String(r.status).replace(/_/g, "-"),
         rating: Number(r.rating || 0), since: r.created_at,
       }),
@@ -262,9 +262,10 @@
   /* ───────── hydrate the app from the real database ───────── */
   SB.load = async function () {
     const g = (q) => SB.rest(q).catch(() => []);
-    const [countries, currencies, taxRules, routes, suppliers, vehicles] = await Promise.all([
+    const [countries, currencies, taxRules, routes, suppliers, vehicles, profiles] = await Promise.all([
       g("countries?select=*"), g("currencies?select=*"), g("tax_rules?select=*"),
       g("shipping_routes?select=*"), g("suppliers?select=*"), g("vehicles?select=*&order=created_at.desc"),
+      g("profiles?select=*"),
     ]);
     const dest = {}, origins = [];
     for (const r of countries) {
@@ -288,12 +289,33 @@
       taxRules: taxRules.map(M.taxRules.from),
       suppliers: suppliers.map(M.suppliers.from),
       vehicles: vehicles.map(M.vehicles.from),
-      users: [], requests: [], orders: [], quotations: [], payments: [], shipments: [],
+      users: (profiles || []).map((p) => ({
+        id: p.id, name: p.full_name || p.email, email: p.email, phone: p.phone,
+        role: p.role, status: p.status, currency: p.currency || "USD", supplierId: p.supplier_id,
+        hash: null, remote: true,
+      })),
+      requests: [], orders: [], quotations: [], payments: [], shipments: [],
       notifications: [], tickets: [], documents: [], audits: [], settings: {},
     };
   };
 
   /* synchronous hydration used during page boot */
+  /* cached copy for instant first paint */
+  SB.loadCached = function () {
+    try {
+      const raw = localStorage.getItem("gad.sb.mirror");
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed && parsed.vehicles && parsed.vehicles.length ? parsed : null;
+    } catch (e) { return null; }
+  };
+
+  SB.refresh = async function () {
+    const fresh = await SB.load();
+    try { localStorage.setItem("gad.sb.mirror", JSON.stringify(fresh)); } catch (e) {}
+    return fresh;
+  };
+
   SB.loadSync = function () {
     const xhr = function (path) {
       const x = new XMLHttpRequest();

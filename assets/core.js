@@ -1,7 +1,7 @@
 /* GLOBAL AUTO DIRECT — core: data layer, money, tax engine, auth, shell */
 (function () {
   const KEY = "gad.v1";
-  const GAD = (window.GAD = {});
+  const GAD = (window.GAD = window.GAD || {});
 
   /* ---------- storage ----------
      With Supabase configured every read comes from Postgres and every write is
@@ -10,7 +10,20 @@
   const LIVE = !!(SB && SB.on);
   let liveDb = null, bootError = null;
   if (LIVE) {
-    try { liveDb = SB.loadSync(); } catch (e) { bootError = String((e && e.message) || e); }
+    /* instant paint from the cached copy, then refresh quietly in the background */
+    liveDb = SB.loadCached();
+    const hadCache = !!liveDb;
+    SB.refresh()
+      .then((fresh) => {
+        if (!fresh) return;
+        const changed = JSON.stringify(fresh) !== JSON.stringify(liveDb);
+        liveDb = fresh;
+        if (!hadCache || (changed && !sessionStorage.getItem("gad.sb.rerender"))) {
+          sessionStorage.setItem("gad.sb.rerender", "1");
+          location.reload();
+        }
+      })
+      .catch((e) => { bootError = String((e && e.message) || e); });
   }
 
   function read() { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } }

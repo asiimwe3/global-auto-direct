@@ -28,6 +28,7 @@
 <script src="assets/data.js"></script>
 <script src="assets/core.js"></script>
 <script src="assets/ui.js"></script>
+<script src="assets/compare.js"></script>
 <script>
 (function () {
   const G = window.GAD;
@@ -39,6 +40,12 @@
   if (!v) { el.innerHTML = '<h2>Vehicle not found</h2><p>That listing may have been removed.</p><a class="btn primary" href="vehicles.html">Back to inventory</a>'; return; }
   const o = G.origin(v.origin), sup = d.suppliers.find(s => s.id === v.supplierId);
   document.title = v.title + " — GLOBAL AUTO DIRECT";
+  const md = document.querySelector('meta[name=description]'); if (md) md.setAttribute("content", v.year + " " + v.title + " from " + G.origin(v.origin).name + ". " + (v.engineCc ? v.engineCc + "cc " : "") + v.fuel + ", " + v.condition + ". " + G.price(v.priceUsd) + " plus coordinated shipping, inspection and clearance.");
+  const ld = document.createElement("script"); ld.type = "application/ld+json";
+  ld.textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: v.title, brand: { "@type": "Brand", name: v.brand },
+    description: v.condition + " " + v.year + " " + v.brand + " " + v.model + " imported from " + G.origin(v.origin).name,
+    offers: { "@type": "Offer", priceCurrency: "USD", price: v.priceUsd, availability: "https://schema.org/InStock" } });
+  document.head.appendChild(ld);
   const q = G.quote({ vehicleId: v.id, vehiclePrice: v.priceUsd, engineCc: v.engineCc, destCode: "UG", originCode: v.origin, currency: G.cur(), shipping: "sea" });
   el.innerHTML = `
     <div class="small" style="margin-bottom:12px"><a href="vehicles.html" style="color:#5AA0FF">Inventory</a> / <a href="vehicles.html?category=${v.category}" style="color:#5AA0FF">${(G.CATEGORIES.find(c=>c[0]===v.category)||[,v.category])[1]}</a> / ${G.esc(v.title)}</div>

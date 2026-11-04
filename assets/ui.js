@@ -24,6 +24,9 @@
         </div>
         <div class="spec"><span>${o.flag} ${G.esc(o.name)}</span><span>·</span><span>${G.esc(cat)}</span></div>
         <div class="price"><span class="amt">${G.price(v.priceUsd)}</span><span class="loc">ship from ${G.price(v.shipEstimateUsd)}</span></div>
+        <label class="small" style="display:flex;align-items:center;gap:7px;color:#93A3BF;cursor:pointer;margin-top:2px">
+          <input type="checkbox" class="cmp" data-id="${v.id}" style="width:auto" ${G.compareIds().includes(v.id) ? "checked" : ""}> Compare
+        </label>
       </div>
     </article>`;
   };
@@ -92,10 +95,27 @@
 
   /* tracking timeline shared by account + track pages */
   G.timeline = function (order) {
+    const log = order.log || [];
+    const stamp = (stage) => {
+      const key = stage.toLowerCase().slice(0, 14);
+      const hit = log.find((l) => String(l.text).toLowerCase().indexOf(key) === 0);
+      return hit ? hit.at : null;
+    };
     return `<ul class="timeline">${G.STAGES.map((s, i) => {
       const done = i < G.stageIndex(order.stage), now = i === G.stageIndex(order.stage);
-      const ev = (order.log || []).filter((l) => l.text.toLowerCase().includes(s.toLowerCase().split(" ")[0]));
-      return `<li class="${done ? "done" : now ? "now" : ""}"><b>${i + 1}. ${s}</b><span>${now ? "Current stage" : done ? "Completed" : "Not started"}${ev[0] ? " · " + G.when(ev[0].at) : ""}</span></li>`;
+      const at = done || now ? stamp(s) : null;
+      return `<li class="${done ? "done" : now ? "now" : ""}"><b>${i + 1}. ${s}</b><span>${now ? "Current stage" : done ? "Completed" : "Not started"}${at ? " · " + G.when(at) : ""}</span></li>`;
     }).join("")}</ul>`;
+  };
+
+  /* comparison: keep a short list of vehicles to compare side by side */
+  G.compareIds = () => { try { return JSON.parse(sessionStorage.getItem("gad.compare") || "[]"); } catch (e) { return []; } };
+  G.toggleCompare = function (id) {
+    let list = G.compareIds();
+    if (list.includes(id)) list = list.filter((x) => x !== id);
+    else { if (list.length >= 3) list.shift(); list.push(id); }
+    sessionStorage.setItem("gad.compare", JSON.stringify(list));
+    document.dispatchEvent(new Event("gad:compare"));
+    return list;
   };
 })();

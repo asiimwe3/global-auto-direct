@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Compare imported vehicles — GLOBAL AUTO DIRECT</title>
+<meta name="description" content="Compare up to three vehicles side by side: specification, shipping estimate and full landed cost to your destination.">
+<meta property="og:title" content="Compare imported vehicles — GLOBAL AUTO DIRECT">
+<meta property="og:description" content="Compare up to three vehicles side by side: specification, shipping estimate and full landed cost to your destination.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="block" style="padding-top:34px"><div class="wrap">
+  <span class="eyebrow">Comparison</span><h1 style="font-size:clamp(1.8rem,3.6vw,2.6rem)">Compare vehicles side by side</h1>
+  <p>Tick "Compare" on up to three vehicles in the inventory, then open them here. Landed cost is calculated for Uganda by sea.</p>
+  <div id="cmp"></div>
+</div></section>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+(function () {
+  const G = window.GAD;
+  G.mount("vehicles.html");
+  const el = document.getElementById("cmp");
+  const ids = (G.qs("ids") || "").split(",").filter(Boolean).length ? (G.qs("ids") || "").split(",").filter(Boolean) : G.compareIds();
+  const d = G.db();
+  const list = ids.map(id => d.vehicles.find(v => v.id === id)).filter(Boolean);
+  if (!list.length) {
+    el.innerHTML = `<div class="card"><h3 style="margin-top:0">Nothing to compare yet</h3><p class="small">Open the inventory and tick the compare box on the vehicles you are considering.</p><a class="btn primary" href="vehicles.html">Go to inventory</a></div>`;
+    return;
+  }
+  const quotes = list.map(v => G.quote({ vehicleId: v.id, vehiclePrice: v.priceUsd, engineCc: v.engineCc, originCode: v.origin, destCode: "UG", shipping: "sea", currency: G.cur() }));
+  const rows = [
+    ["Price (FOB)", v => G.price(v.priceUsd)],
+    ["Year", v => v.year],
+    ["Mileage", v => v.mileageKm ? G.num(v.mileageKm) + " km" : "0 km (new)"],
+    ["Engine", v => v.engineCc ? G.num(v.engineCc) + " cc" : "Electric"],
+    ["Fuel", v => v.fuel],
+    ["Transmission", v => v.transmission],
+    ["Drivetrain", v => v.drivetrain],
+    ["Condition", v => v.condition],
+    ["Origin", v => G.origin(v.origin).name],
+    ["Shipping estimate", v => G.price(v.shipEstimateUsd)],
+    ["Delivery time", v => v.deliveryDays + " days"],
+    ["Landed cost to Uganda", (v, i) => "<b>" + G.price(quotes[i].totalUsd) + "</b>"],
+    ["Action", v => `<a class="btn ghost sm" href="vehicle.html?id=${v.id}">View</a>`],
+  ];
+  el.innerHTML = `<div class="table-wrap"><table style="min-width:760px"><thead><tr><th></th>${list.map(v => `<th style="position:static">${G.esc(v.title)}</th>`).join("")}</tr></thead>
+    <tbody>${rows.map(([label, fn]) => `<tr><th style="position:static">${label}</th>${list.map((v, i) => `<td>${fn(v, i)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+    <p class="small" style="margin-top:12px">Landed cost uses each vehicle's own engine size and origin route. Estimates still require confirmation by a clearing agent.</p>
+    <a class="btn ghost" href="vehicles.html">Add another vehicle</a>`;
+})();
+</script>
+</body>
+</html>

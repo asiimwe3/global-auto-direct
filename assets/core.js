@@ -3,16 +3,69 @@
   const KEY = "gad.v1";
   const GAD = (window.GAD = {});
 
-  /* ---------- storage ---------- */
+  /* ---------- storage ----------
+     With Supabase configured every read comes from Postgres and every write is
+     pushed back. Without it the app runs on bundled demonstration data. */
+  const SB = window.GAD.sb || null;
+  const LIVE = !!(SB && SB.on);
+  let liveDb = null, bootError = null;
+  if (LIVE) {
+    try { liveDb = SB.loadSync(); } catch (e) { bootError = String((e && e.message) || e); }
+  }
+
   function read() { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } }
-  function write(db) { localStorage.setItem(KEY, JSON.stringify(db)); }
+  function write(d) { if (!LIVE) localStorage.setItem(KEY, JSON.stringify(d)); }
   function db() {
+    if (LIVE && liveDb) return liveDb;
     let d = read();
     if (!d) { d = window.GAD_SEED(); write(d); }
     return d;
   }
-  function save(mutator) { const d = db(); mutator(d); write(d); return d; }
+  function save(mutator) {
+    const d = db();
+    const before = LIVE ? JSON.stringify(d) : null;
+    mutator(d);
+    write(d);
+    if (LIVE && liveDb) pushChanges(before, d);
+    return d;
+  }
+
+  const PUSH_TABLES = ["vehicles", "suppliers", "requests", "orders", "quotations", "payments", "notifications", "tickets", "audits", "taxRules", "countries"];
+  let pushQueue = Promise.resolve();
+  function pushChanges(beforeJson, after) {
+    if (!SB || !SB.rest || !SB.map) return;
+    const before = JSON.parse(beforeJson);
+    const rows = [];
+    for (const key of PUSH_TABLES) {
+      const spec = SB.map[key];
+      if (!spec) continue;
+      const now = key === "countries" ? Object.values(after.countries || {}) : (after[key] || []);
+      const was = key === "countries" ? Object.values(before.countries || {}) : (before[key] || []);
+      for (const row of now) {
+        const id = row.id || row.code;
+        const old = (was || []).find((r) => (r.id || r.code) === id);
+        if (!old || JSON.stringify(old) !== JSON.stringify(row)) {
+          try { rows.push([spec, spec.to(row)]); } catch (e) { /* skipped */ }
+        }
+      }
+    }
+    if (!rows.length) return;
+    pushQueue = pushQueue.then(async () => {
+      for (const pair of rows) {
+        const spec = pair[0], body = pair[1];
+        let q = "";
+        if (spec.table === "vehicles" || spec.table === "suppliers") q = "?on_conflict=legacy_id";
+        else if (spec.table === "countries") q = "?on_conflict=code";
+        else if (spec.table === "tax_rules") q = "?on_conflict=id";
+        else if (spec.table === "requests" || spec.table === "orders" || spec.table === "quotations") q = "?on_conflict=code";
+        await SB.rest(spec.table + q, { method: "POST", body, headers: { Prefer: "resolution=merge-duplicates" } })
+          .catch((e) => { GAD.lastSyncError = String(e.message).slice(0, 200); });
+      }
+    });
+  }
   GAD.db = db; GAD.save = save;
+  GAD.live = LIVE;
+  GAD.bootError = bootError;
   GAD.reset = function () { localStorage.removeItem(KEY); location.reload(); };
 
   GAD.uid = (p) => (p || "id") + "_" + Math.random().toString(36).slice(2, 9);
@@ -37,11 +90,25 @@
   }
   GAD.hash = hash;
   GAD.currentUser = function () {
+    if (LIVE) {
+      try {
+        const p = JSON.parse(localStorage.getItem("gad.sb.profile") || "null");
+        if (p) return p;
+      } catch (e) { /* fall through */ }
+      return null;
+    }
     const id = localStorage.getItem("gad.session");
     if (!id) return null;
     return db().users.find((u) => u.id === id) || null;
   };
   GAD.login = async function (email, password) {
+    if (LIVE && SB && SB.signIn) {
+      const r = await SB.signIn(email, password);
+      if (!r.ok) return r;
+      localStorage.setItem("gad.sb.profile", JSON.stringify(r.user));
+      localStorage.setItem("gad.session", r.user.id);
+      return { ok: true, user: r.user };
+    }
     const u = db().users.find((x) => x.email.toLowerCase() === String(email).toLowerCase().trim());
     if (!u) return { ok: false, error: "No account with that email." };
     if (u.passwordHash !== await hash(password)) return { ok: false, error: "That password is not correct." };
@@ -51,6 +118,11 @@
     return { ok: true, user: u };
   };
   GAD.register = async function (data) {
+    if (LIVE && SB && SB.signUp) {
+      const r = await SB.signUp(data);
+      if (!r.ok) return r;
+      return { ok: true, needsConfirm: !!r.needsConfirm, user: { id: (r.user && r.user.id) || "", name: data.name, email: data.email, role: data.role || "customer", currency: data.currency || "UGX" } };
+    }
     const exists = db().users.some((x) => x.email.toLowerCase() === data.email.toLowerCase().trim());
     if (exists) return { ok: false, error: "An account with that email already exists." };
     const user = {
@@ -64,7 +136,12 @@
     audit(user.id, "Created account", "user", user.id);
     return { ok: true, user };
   };
-  GAD.logout = function () { localStorage.removeItem("gad.session"); location.href = "index.html"; };
+  GAD.logout = function () {
+    localStorage.removeItem("gad.session");
+    localStorage.removeItem("gad.sb.profile");
+    if (LIVE && SB && SB.signOut) return SB.signOut();
+    location.href = "index.html";
+  };
   GAD.guard = function (roles) {
     const u = GAD.currentUser();
     if (!u) { location.href = "login.html?next=" + encodeURIComponent(location.pathname.split("/").pop() + location.search); return null; }
@@ -159,6 +236,7 @@
       <a class="logo" href="index.html"><span class="mark">G</span><span>GLOBAL AUTO DIRECT<small>BUY ANYWHERE. DELIVERED WORLDWIDE.</small></span></a>
       <button class="burger" aria-label="Menu" onclick="document.querySelector('nav.main').classList.toggle('open')">☰</button>
       <nav class="main">${NAV.map(([h, t]) => `<a href="${h}" class="${h === active ? "on" : ""}">${t}</a>`).join("")}
+        <a href="connect.html" class="chip ${LIVE ? "ok" : "warn"}" title="${LIVE ? "Reading and writing your Postgres database" : "Running on bundled demonstration data"}">${LIVE ? "● Live data" : "● Demo data"}</a>
         ${u ? `<a href="${dash}" class="btn ghost sm">${u.role === "customer" ? "My account" : "Dashboard"}</a>` : `<a href="login.html" class="btn ghost sm">Sign in</a>`}
         <a href="vehicles.html" class="btn primary sm">Search vehicles</a>
       </nav>

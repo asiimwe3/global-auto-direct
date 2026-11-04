@@ -8,10 +8,10 @@
 <meta property="og:title" content="Vehicle details — GLOBAL AUTO DIRECT">
 <meta property="og:description" content="Full specifications, supplier verification, shipping estimate and landed cost for this import-ready vehicle.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#050B18">
+<meta name="theme-color" content="var(--navy)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css?v=1793812755&v=1793812755">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
 </head>
@@ -50,18 +50,20 @@
   document.head.appendChild(ld);
   const q = G.quote({ vehicleId: v.id, vehiclePrice: v.priceUsd, engineCc: v.engineCc, destCode: "UG", originCode: v.origin, currency: G.cur(), shipping: "sea" });
   el.innerHTML = `
-    <div class="small" style="margin-bottom:12px"><a href="vehicles.html" style="color:#5AA0FF">Inventory</a> / <a href="vehicles.html?category=${v.category}" style="color:#5AA0FF">${(G.CATEGORIES.find(c=>c[0]===v.category)||[,v.category])[1]}</a> / ${G.esc(v.title)}</div>
+    <div class="small" style="margin-bottom:12px"><a href="vehicles.html" style="color:var(--blue2)">Inventory</a> / <a href="vehicles.html?category=${v.category}" style="color:var(--blue2)">${(G.CATEGORIES.find(c=>c[0]===v.category)||[,v.category])[1]}</a> / ${G.esc(v.title)}</div>
     <div class="calc">
       <div>
         <div class="card" style="padding:0;overflow:hidden">
-          <img src="${v.art}" alt="${G.esc(v.title)}" style="width:100%;aspect-ratio:16/10;object-fit:cover">
+          <img id="mainShot" src="${v.photo || v.art}" alt="${G.esc(v.title)}" style="width:100%;aspect-ratio:16/10;object-fit:cover">
+          ${v.gallery && v.gallery.length > 1 ? `<div class="shot-strip">${v.gallery.map((u, i) => `<img src="${u}" loading="lazy" onclick="document.getElementById('mainShot').src='${u}';document.querySelectorAll('.shot-strip img').forEach((n,j)=>n.classList.toggle('on',j===${i}))" class="${i === 0 ? "on" : ""}" alt="${G.esc(v.title)} photo ${i + 1}">`).join("")}</div>` : ""}
           <div style="padding:14px;display:flex;gap:8px;flex-wrap:wrap"><span class="chip demo">Demonstration listing</span><span class="chip">${o.flag} ${o.name}</span><span class="chip ${v.condition === "New" ? "ok" : ""}">${G.esc(v.condition)}</span>${v.videoInspection ? '<span class="chip">Video inspection available</span>' : ''}</div>
+          ${v.photoCredit ? `<div class="small" style="padding:0 14px 12px;color:var(--muted)">Photo: ${G.esc(v.photoCredit)}${v.photoLicense ? " · " + G.esc(v.photoLicense) : ""}${v.photoSource ? ` · <a href="${v.photoSource}" target="_blank" rel="noopener" style="color:var(--blue2)">source</a>` : ""}</div>` : ""}
         </div>
         <div class="card"><h3 style="margin-top:0">Vehicle specifications</h3><div class="table-wrap"><table><tbody>${G.specs(v)}</tbody></table></div></div>
         <div class="card"><h3 style="margin-top:0">Supplier</h3>
           <p class="small" style="margin:0"><b>${sup ? sup.name : "—"}</b> · ${sup ? G.origin(sup.country).name : ""} · rating ${sup ? sup.rating : "—"}</p>
           <p class="small" style="margin:6px 0 0">Verification status: <span class="chip ${sup && sup.status === "verified" ? "ok" : "warn"}">${sup ? sup.status : "unknown"}</span></p>
-          <p class="small" style="margin:8px 0 0">Documents on file: ${sup ? sup.docs.join(", ") : "—"}</p>
+          <p class="small" style="margin:8px 0 0">Documents on file: ${(sup && sup.docs && sup.docs.length) ? sup.docs.join(", ") : "—"}</p>
         </div>
       </div>
       <div>
@@ -78,7 +80,7 @@
         </div>
         <div class="card"><h3 style="margin-top:0">Import notes for ${G.country("UG").flag} Uganda</h3>
           <p class="small">${G.country("UG").regs}</p>
-          <p class="small" style="margin:0">Estimated delivery ${v.deliveryDays} days · destination eligibility: ${v.destinations.map(c => (G.country(c) || {}).name).filter(Boolean).join(", ")}</p>
+          <p class="small" style="margin:0">Estimated delivery ${v.deliveryDays} days · destination eligibility: ${(v.destinations || []).map(c => (G.country(c) || {}).name).filter(Boolean).join(", ") || "confirm on request"}</p>
         </div>
         <div class="notice">VVIN and chassis numbers are released only to verified buyers at quotation stage. This listing is demonstration data, not confirmed supplier stock.</div>
       </div>

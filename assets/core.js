@@ -158,7 +158,7 @@
   GAD.guard = function (roles) {
     const u = GAD.currentUser();
     if (!u) { location.href = "login.html?next=" + encodeURIComponent(location.pathname.split("/").pop() + location.search); return null; }
-    if (roles && roles.length && !roles.includes(u.role)) { document.body.innerHTML = '<div style="padding:60px;text-align:center;font-family:system-ui"><h2>Not your area</h2><p style="color:#93A3BF">This dashboard is for: ' + roles.join(", ") + '</p><a href="index.html" style="color:#2E7DFF">Back to the website</a></div>'; return null; }
+    if (roles && roles.length && !roles.includes(u.role)) { document.body.innerHTML = '<div style="padding:60px;text-align:center;font-family:system-ui"><h2>Not your area</h2><p style="color:var(--muted)">This dashboard is for: ' + roles.join(", ") + '</p><a href="index.html" style="color:var(--blue)">Back to the website</a></div>'; return null; }
     return u;
   };
   GAD.requireLogin = function () {
@@ -249,6 +249,11 @@
       <a class="logo" href="index.html"><span class="mark">G</span><span>GLOBAL AUTO DIRECT<small>BUY ANYWHERE. DELIVERED WORLDWIDE.</small></span></a>
       <button class="burger" aria-label="Menu" onclick="document.querySelector('nav.main').classList.toggle('open')">☰</button>
       <nav class="main">${NAV.map(([h, t]) => `<a href="${h}" class="${h === active ? "on" : ""}">${t}</a>`).join("")}
+        <div class="theme-pick" title="Change website colour">
+          <button type="button" data-theme-set="copper" aria-label="Obsidian and copper"></button>
+          <button type="button" data-theme-set="emerald" aria-label="Deep emerald"></button>
+          <button type="button" data-theme-set="midnight" aria-label="Midnight blue"></button>
+        </div>
         <a href="connect.html" class="chip ${LIVE ? "ok" : "warn"}" title="${LIVE ? "Reading and writing your Postgres database" : "Running on bundled demonstration data"}">${LIVE ? "● Live data" : "● Demo data"}</a>
         ${u ? `<a href="${dash}" class="btn ghost sm">${u.role === "customer" ? "My account" : "Dashboard"}</a>` : `<a href="login.html" class="btn ghost sm">Sign in</a>`}
         <a href="vehicles.html" class="btn primary sm">Search vehicles</a>
@@ -264,7 +269,7 @@
         </div>
         <div><h4>Shop</h4><a href="vehicles.html?category=cars">Cars</a><a href="vehicles.html?category=suvs">SUVs</a><a href="vehicles.html?category=pickups">Pickup trucks</a><a href="vehicles.html?category=motorcycles">Motorcycles</a><a href="vehicles.html?category=zongshen">Zongshen</a><a href="vehicles.html?category=electric-cars">Electric cars</a><a href="vehicles.html?category=spare-parts">Spare parts</a></div>
         <div><h4>Import from</h4><a href="vehicles.html?origin=JP">Japan</a><a href="vehicles.html?origin=CN">China</a><a href="vehicles.html?origin=DE">Germany</a><a href="vehicles.html?origin=KR">South Korea</a><a href="vehicles.html?origin=AE">United Arab Emirates</a><a href="vehicles.html?origin=US">United States</a></div>
-        <div><h4>Company</h4><a href="calculator.html">Import calculator</a><a href="import-request.html">Custom import request</a><a href="guides.html">Import guides</a><a href="track.html">Track a shipment</a><a href="suppliers-join.html">Become a supplier</a><a href="login.html">Sign in</a></div>
+        <div><h4>Company</h4><a href="calculator.html">Import calculator</a><a href="import-request.html">Custom import request</a><a href="gallery.html">Photo library</a><a href="guides.html">Import guides</a><a href="track.html">Track a shipment</a><a href="suppliers-join.html">Become a supplier</a><a href="login.html">Sign in</a></div>
       </div>
       <div class="legal">
         <span>© ${new Date().getFullYear()} GLOBAL AUTO DIRECT. Demonstration platform.</span>
@@ -289,14 +294,48 @@
     t.textContent = msg; t.classList.add("on");
     clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("on"), 3600);
   };
+  /* ---------- colour palette ----------
+     Three skins share one token set; the choice sticks per browser. */
+  const THEMES = { copper: "#E2703A", emerald: "#12B886", midnight: "#2E7DFF" };
+  GAD.theme = function () { return localStorage.getItem("gad.theme") || "copper"; };
+  GAD.setTheme = function (name) {
+    if (!THEMES[name]) return;
+    document.documentElement.setAttribute("data-theme", name);
+    localStorage.setItem("gad.theme", name);
+    document.querySelectorAll("[data-theme-set]").forEach((b) => b.classList.toggle("on", b.dataset.themeSet === name));
+  };
+  (function bootTheme() {
+    const saved = localStorage.getItem("gad.theme") || "copper";
+    document.documentElement.setAttribute("data-theme", saved);
+  })();
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-theme-set]");
+    if (b) GAD.setTheme(b.dataset.themeSet);
+  });
+
   GAD.esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   GAD.qs = (k) => new URLSearchParams(location.search).get(k);
   GAD.CATEGORIES = [
-    ["cars", "Cars", "🚗", "Sedans and hatchbacks"], ["suvs", "SUVs & crossovers", "🚙", "Family and 4x4"],
-    ["pickups", "Pickup trucks", "🛻", "Work and double cab"], ["commercial", "Commercial vehicles", "🚐", "Vans and lorries"],
-    ["buses", "Buses & minibuses", "🚌", "22 to 65 seats"], ["motorcycles", "Motorcycles", "🏍", "Street and off-road"],
-    ["zongshen", "Zongshen motorcycles", "🏍", "Authorised line"], ["electric-cars", "Electric cars", "⚡", "Zero emission"],
-    ["electric-motorcycles", "Electric motorcycles", "🛵", "Battery powered"], ["heavy-machinery", "Heavy machinery", "🚜", "Loaders and excavators"],
+    ["cars", "Cars", "🚗", "Sedans and hatchbacks"],
+    ["suvs", "SUVs & crossovers", "🚙", "Family and 4x4"],
+    ["pickups", "Pickup trucks", "🛻", "Work and double cab"],
+    ["vans", "Vans", "🚐", "Panel, crew and cargo"],
+    ["commercial", "Commercial vehicles", "🚚", "Vans and lorries"],
+    ["minibuses", "Minibuses", "🚌", "14 to 33 seats"],
+    ["buses", "Buses & coaches", "🚌", "22 to 65 seats"],
+    ["light-trucks", "Light trucks", "🚛", "1 to 7.5 tonnes"],
+    ["heavy-trucks", "Heavy trucks", "🚛", "Tractor units and tippers"],
+    ["trailers", "Trailers", "🚋", "Flatbed, tipper and semi"],
+    ["tractors", "Tractors & farm", "🚜", "Field and utility"],
+    ["heavy-machinery", "Heavy machinery", "🏗", "Excavators and loaders"],
+    ["forklifts", "Forklifts", "🏭", "Warehouse and yard"],
+    ["motorcycles", "Motorcycles", "🏍", "Street and off-road"],
+    ["zongshen", "Zongshen motorcycles", "🏍", "Authorised line"],
+    ["scooters", "Scooters", "🛵", "Commuter and delivery"],
+    ["three-wheelers", "Three-wheelers", "🛺", "Tuk tuk and cargo"],
+    ["electric-cars", "Electric cars", "⚡", "Zero emission"],
+    ["electric-motorcycles", "Electric motorcycles", "🛵", "Battery powered"],
+    ["ambulances", "Ambulances", "🚑", "Basic and advanced life support"],
     ["spare-parts", "Spare parts & accessories", "⚙", "Genuine parts"],
   ];
 })();

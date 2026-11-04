@@ -8,10 +8,10 @@
 <meta property="og:title" content="Administration — GLOBAL AUTO DIRECT">
 <meta property="og:description" content="Operations dashboard for vehicles, suppliers, customers, orders, quotations, payments, shipping, tax rules and audit logs.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#050B18">
+<meta name="theme-color" content="var(--navy)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css?v=1793812755&v=1793812755">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
 </head>
@@ -136,7 +136,7 @@
     if (tab === "suppliers") {
       pane.innerHTML = `<h1 style="font-size:1.8rem">Suppliers</h1><p>Verification gates inventory publishing. Only verified suppliers can publish stock.</p>
         <div class="table-wrap"><table><thead><tr><th>Supplier</th><th>Country</th><th>Documents</th><th>Status</th><th>Set status</th></tr></thead><tbody>
-        ${d.suppliers.map(s => `<tr><td><b>${G.esc(s.name)}</b><div class="small">${s.contact}</div></td><td>${G.origin(s.country).flag} ${G.origin(s.country).name}</td><td class="small">${s.docs.join("<br>")}</td>
+        ${d.suppliers.map(s => `<tr><td><b>${G.esc(s.name)}</b><div class="small">${s.contact}</div></td><td>${G.origin(s.country).flag} ${G.origin(s.country).name}</td><td class="small">${(s.docs || []).join("<br>") || "—"}</td>
           <td><span class="chip ${s.status === "verified" ? "ok" : s.status === "rejected" || s.status === "suspended" ? "bad" : "warn"}">${s.status}</span></td>
           <td><select data-sup="${s.id}">${["pending","under-review","verified","suspended","rejected"].map(x => `<option ${x === s.status ? "selected" : ""}>${x}</option>`).join("")}</select></td></tr>`).join("")}
         </tbody></table></div>`;
@@ -394,7 +394,7 @@
       pane.innerHTML = `<h1 style="font-size:1.8rem">Support and complaints</h1><p>Customer messages. Replies are visible in the customer's account.</p>
         ${d.tickets.map(t => { const c = d.users.find(x => x.id === t.userId) || {}; return `<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>${G.esc(t.subject)}</b><span class="chip ${t.status === "open" ? "warn" : "ok"}">${t.status}</span></div>
           <p class="small" style="margin:6px 0">${G.esc(t.message)}</p><p class="small" style="margin:0 0 8px">From ${G.esc(c.name || "guest")} · ${G.when(t.at)}</p>
-          ${t.reply ? `<p class="small" style="color:#2ED47A">Reply: ${G.esc(t.reply)}</p>` : `<div style="display:flex;gap:8px;flex-wrap:wrap"><input id="rep_${t.id}" placeholder="Type a reply" style="flex:1;min-width:220px"><button class="btn primary sm" data-reply="${t.id}">Reply</button></div>`}</div>`; }).join("") || '<div class="card"><p>No tickets.</p></div>'}`;
+          ${t.reply ? `<p class="small" style="color:var(--ok)">Reply: ${G.esc(t.reply)}</p>` : `<div style="display:flex;gap:8px;flex-wrap:wrap"><input id="rep_${t.id}" placeholder="Type a reply" style="flex:1;min-width:220px"><button class="btn primary sm" data-reply="${t.id}">Reply</button></div>`}</div>`; }).join("") || '<div class="card"><p>No tickets.</p></div>'}`;
       pane.querySelectorAll("[data-reply]").forEach(b => b.onclick = () => {
         const id = b.dataset.reply, txt = document.getElementById("rep_" + id).value.trim();
         if (!txt) return;

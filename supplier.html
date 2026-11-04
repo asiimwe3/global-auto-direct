@@ -8,10 +8,10 @@
 <meta property="og:title" content="Supplier portal — GLOBAL AUTO DIRECT">
 <meta property="og:description" content="Supplier dashboard to manage inventory, verification documents and assigned orders.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#050B18">
+<meta name="theme-color" content="var(--navy)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css?v=1793812755&v=1793812755">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
 </head>
@@ -81,7 +81,7 @@
             <div><label class="f">Inspection report</label><input id="rep" type="file"></div>
           </div>
           <button class="btn primary" id="add" style="margin-top:8px">Save listing</button>
-          ${verified ? "" : '<p class="small" style="color:#FFB020">Saved as draft until your business is verified.</p>'}
+          ${verified ? "" : '<p class="small" style="color:var(--warn)">Saved as draft until your business is verified.</p>'}
         </div>
         <div class="table-wrap"><table><thead><tr><th>Vehicle</th><th>Price</th><th>Status</th><th>Action</th></tr></thead><tbody>
         ${myVehicles.map(v => `<tr><td><b>${G.esc(v.title)}</b><div class="small">${v.year} · ${v.category}</div></td><td>${G.price(v.priceUsd)}</td>
@@ -125,7 +125,7 @@
       pane.innerHTML = `<h1 style="font-size:1.8rem">Verification documents</h1><p>These are reviewed by our supplier team. Only verified suppliers can publish inventory.</p>
         <div class="card"><div class="table-wrap"><table><tbody>
           <tr><th>Status</th><td><span class="chip ${verified ? "ok" : "warn"}">${s.status}</span></td></tr>
-          <tr><th>Documents on file</th><td>${s.docs.length ? s.docs.map(G.esc).join("<br>") : "None uploaded yet"}</td></tr>
+          <tr><th>Documents on file</th><td>${(s.docs || []).length ? s.docs.map(G.esc).join("<br>") : "None uploaded yet"}</td></tr>
           <tr><th>Trading since</th><td>${s.since}</td></tr>
           <tr><th>Contact</th><td>${G.esc(s.contact)}</td></tr>
         </tbody></table></div>
@@ -134,7 +134,7 @@
       document.getElementById("dadd").onclick = () => {
         const files = [...document.getElementById("df").files];
         if (!files.length) { G.toast("Choose a file first."); return; }
-        G.save(db => { const x = db.suppliers.find(y => y.id === s.id); files.forEach(f => x.docs.push(f.name)); x.status = x.status === "pending" ? "under-review" : x.status; });
+        G.save(db => { const x = db.suppliers.find(y => y.id === s.id); x.docs = x.docs || []; files.forEach(f => x.docs.push(f.name)); x.status = x.status === "pending" ? "under-review" : x.status; });
         G.audit(u.id, "Supplier submitted documents", "supplier", s.id); G.toast("Documents submitted for review."); view();
       };
     }

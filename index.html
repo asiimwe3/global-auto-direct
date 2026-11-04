@@ -8,10 +8,10 @@
 <meta property="og:title" content="GLOBAL AUTO DIRECT — Buy vehicles worldwide, delivered to your door">
 <meta property="og:description" content="Import cars, SUVs, pickups, buses, motorcycles and machinery from Japan, China, Germany, South Korea, UAE and the USA. Transparent landed-cost calculator and tracked delivery.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#050B18">
+<meta name="theme-color" content="var(--navy)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css?v=1793812755&v=1793812755">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GLOBAL AUTO DIRECT","slogan":"BUY ANYWHERE. DELIVERED WORLDWIDE.","description":"International vehicle marketplace and import coordination platform connecting buyers with verified suppliers in Japan, China, Germany, South Korea, the UAE and the USA.","areaServed":"Worldwide","knowsAbout":["vehicle import","international shipping","customs clearance","motorcycle import"]}</script>
 </head>
@@ -40,7 +40,7 @@
       </div>
     </div>
     <div>
-      <div class="card" style="background:linear-gradient(180deg,#0C1729,#081120)">
+      <div class="card" style="background:linear-gradient(180deg,var(--navy2),var(--panel))">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span class="chip">Live import routes</span><span class="chip ok">6 origins</span></div>
         <div id="routelist" class="small"></div>
       </div>
@@ -58,7 +58,7 @@
 </div></section>
 
 <section class="block"><div class="wrap">
-  <div class="sec-head"><div><span class="eyebrow">Browse</span><h2>Shop by vehicle category</h2><p>Eleven categories, from city cars to heavy machinery and spare parts.</p></div></div>
+  <div class="sec-head"><div><span class="eyebrow">Browse</span><h2>Shop by vehicle category</h2><p>Twenty-one categories, from city cars and vans to heavy trucks, tractors and machinery.</p></div></div>
   <div class="grid g4" id="cats"></div>
 </div></section>
 
@@ -122,7 +122,7 @@
 </div></section>
 
 <section class="block" style="border-bottom:0"><div class="wrap">
-  <div class="card" style="background:linear-gradient(120deg,#0A1B36,#071022);display:grid;grid-template-columns:1.2fr 1fr;gap:26px;align-items:center">
+  <div class="card" style="background:linear-gradient(120deg,var(--panel),var(--navy2));display:grid;grid-template-columns:1.2fr 1fr;gap:26px;align-items:center">
     <div><span class="eyebrow">Stay informed</span><h2 style="margin-bottom:.3em">New arrivals and import guides, monthly</h2><p>One short email a month: fresh stock from our origins, duty changes and shipping updates. No spam.</p></div>
     <form id="news" style="display:flex;gap:10px;flex-wrap:wrap">
       <input type="email" id="newsemail" placeholder="you@example.com" required style="flex:1;min-width:200px">
@@ -169,7 +169,7 @@
     return `<a class="card" style="margin:0;display:block" href="country-${o.code.toLowerCase()}.html">
       <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">${o.flag} ${o.name}</h3><span class="chip">${count} listing${count === 1 ? "" : "s"}</span></div>
       <p class="small" style="margin:10px 0 0">${o.note}</p>
-      <p class="small" style="margin:8px 0 0;color:#5AA0FF">Export port ${o.port} · ${o.seaDays} days by sea</p></a>`;
+      <p class="small" style="margin:8px 0 0;color:var(--blue2)">Export port ${o.port} · ${o.seaDays} days by sea</p></a>`;
   }).join("");
 
   const brands = [...new Set(d.vehicles.map(v => v.brand))];

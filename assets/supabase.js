@@ -137,6 +137,7 @@
       }),
       from: (r) => ({
         id: r.id, legacyId: r.legacy_id, dbId: r.id, ownerId: r.owner_id, name: r.name, country: r.country_code, city: r.city,
+        docs: [], vehicles: [],
         email: r.contact_email, phone: r.contact_phone, status: String(r.status).replace(/_/g, "-"),
         rating: Number(r.rating || 0), since: r.created_at,
       }),
@@ -260,12 +261,45 @@
   SB.map = M;
 
   /* ───────── hydrate the app from the real database ───────── */
+
+  /* vehicles borrow real photos by brand and model, then by category */
+  function attachPhotos(vehicles, photos) {
+    if (!photos.length) return vehicles;
+    const norm = (v) => String(v || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const byPair = new Map(), byCat = new Map();
+    for (const p of photos) {
+      const k = norm(p.brand) + "|" + norm(p.model);
+      if (!byPair.has(k)) byPair.set(k, []);
+      byPair.get(k).push(p);
+      if (!byCat.has(p.category)) byCat.set(p.category, []);
+      byCat.get(p.category).push(p);
+    }
+    for (const v of vehicles) {
+      const key = norm(v.brand) + "|" + norm(v.model);
+      let pool = byPair.get(key) || [];
+      if (!pool.length) {
+        const catPool = byCat.get(v.category) || [];
+        const brandMatches = catPool.filter((p) => norm(p.brand) === norm(v.brand));
+        pool = brandMatches.length ? brandMatches : catPool;
+      }
+      if (pool.length) {
+        v.photo = pool[0].url;
+        v.gallery = pool.slice(0, 8).map((p) => p.url);
+        v.photoCredit = pool[0].credit || "";
+        v.photoLicense = pool[0].license || "";
+        v.photoSource = pool[0].source || "";
+      }
+    }
+    return vehicles;
+  }
+
   SB.load = async function () {
     const g = (q) => SB.rest(q).catch(() => []);
-    const [countries, currencies, taxRules, routes, suppliers, vehicles, profiles] = await Promise.all([
+    const [countries, currencies, taxRules, routes, suppliers, vehicles, profiles, photos] = await Promise.all([
       g("countries?select=*"), g("currencies?select=*"), g("tax_rules?select=*"),
       g("shipping_routes?select=*"), g("suppliers?select=*"), g("vehicles?select=*&order=created_at.desc"),
       g("profiles?select=*"),
+      g("vehicle_photos?select=category,brand,model,url,credit,license,source_url&limit=4000"),
     ]);
     const dest = {}, origins = [];
     for (const r of countries) {
@@ -285,10 +319,11 @@
     const cur = {};
     for (const r of currencies) cur[r.code] = { name: r.name, symbol: r.symbol, rate: Number(r.rate_to_usd) };
     return {
-      countries: dest, origins, currencies: cur,
+      countries: Object.values(dest), origins, currencies: cur,
       taxRules: taxRules.map(M.taxRules.from),
       suppliers: suppliers.map(M.suppliers.from),
-      vehicles: vehicles.map(M.vehicles.from),
+      vehicles: attachPhotos(vehicles.map((r) => Object.assign(M.vehicles.from(r), { destinations: Array.isArray(r.destinations) ? r.destinations : [] })), photos || []),
+      photos: (photos || []).map((p) => ({ category: p.category, brand: p.brand, model: p.model, url: p.url, credit: p.credit || "", license: p.license || "", source: p.source_url || "" })),
       users: (profiles || []).map((p) => ({
         id: p.id, name: p.full_name || p.email, email: p.email, phone: p.phone,
         role: p.role, status: p.status, currency: p.currency || "USD", supplierId: p.supplier_id,
@@ -352,7 +387,7 @@
     for (const r of currencies) cur[r.code] = { name: r.name, symbol: r.symbol, rate: Number(r.rate_to_usd) };
     SB.raw = { countries, suppliers, vehicles };
     return {
-      countries: dest, origins, currencies: cur,
+      countries: Object.values(dest), origins, currencies: cur,
       taxRules: taxRules.map(M.taxRules.from),
       suppliers: suppliers.map(M.suppliers.from),
       vehicles: vehicles.map(M.vehicles.from),

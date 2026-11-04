@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Photo library — GLOBAL AUTO DIRECT</title>
+<meta name="description" content="Browse real photographs of cars, SUVs, vans, pickup trucks, heavy trucks, buses, tractors, forklifts, motorcycles and machinery from our supplier markets.">
+<meta property="og:title" content="Photo library — GLOBAL AUTO DIRECT">
+<meta property="og:description" content="Real photographs across every vehicle category we import.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="var(--navy)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css?v=1793812755">
+</head>
+<body>
+<div id="site-header"></div>
+<main class="wrap" style="padding:34px 20px 60px">
+  <div class="kicker">Photo library</div>
+  <h1 style="margin-bottom:6px">Real vehicles, real photographs</h1>
+  <p class="muted" style="max-width:70ch">Every picture here is a genuine photograph of the model, sourced from freely licensed press and enthusiast libraries and credited to its photographer. Filter by category to see the full range we can source.</p>
+  <div id="gal-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 22px"></div>
+  <p class="small muted" id="gal-count"></p>
+  <div id="gal-grid"></div>
+</main>
+<div id="site-footer"></div>
+<script src="assets/data.js?v=1793812755"></script>
+<script src="assets/sb-config.js?v=d3"></script>
+<script src="assets/supabase.js?v=d3"></script>
+<script src="assets/core.js?v=d3"></script>
+<script src="assets/ui.js?v=1793812755"></script>
+<script>
+(function () {
+  const G = window.GAD;
+  G.mount("gallery.html");
+  const d = G.db();
+  const photos = d.photos || [];
+  const grid = document.getElementById("gal-grid");
+  const count = document.getElementById("gal-count");
+  const chips = document.getElementById("gal-filters");
+
+  if (!photos.length) {
+    count.textContent = "";
+    grid.innerHTML = '<div class="card"><h3>Photo library unavailable offline</h3><p class="muted" style="margin:0">The library lives in the platform database. Connect a database in settings to load the photographs.</p></div>';
+    return;
+  }
+
+  const byCat = {};
+  for (const p of photos) { (byCat[p.category] = byCat[p.category] || []).push(p); }
+  const nameOf = (k) => (G.CATEGORIES.find((c) => c[0] === k) || [, k])[1];
+  const order = G.CATEGORIES.map((c) => c[0]).filter((k) => byCat[k]);
+  let active = "all";
+
+  chips.innerHTML = [["all", `All photos (${photos.length})`]]
+    .concat(order.map((k) => [k, `${nameOf(k)} (${byCat[k].length})`]))
+    .map(([k, label]) => `<button class="chip ${k === active ? "ok" : ""}" data-cat="${k}" style="cursor:pointer">${G.esc(label)}</button>`).join("");
+
+  function draw() {
+    const list = active === "all" ? photos : (byCat[active] || []);
+    const shown = list.slice(0, 240);
+    count.textContent = `${list.length} photographs${active === "all" ? "" : " in " + nameOf(active)}${list.length > shown.length ? " · showing the first " + shown.length : ""}`;
+    grid.innerHTML = `<div class="gal">${shown.map((p) => `
+      <figure class="gal-item">
+        <img src="${p.url}" alt="${G.esc(p.brand + " " + p.model)}" loading="lazy">
+        <figcaption><b>${G.esc(p.brand)} ${G.esc(p.model)}</b><span>${G.esc(p.credit || "Wikimedia Commons")}${p.license ? " · " + G.esc(p.license) : ""}</span></figcaption>
+      </figure>`).join("")}</div>`;
+  }
+
+  chips.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-cat]");
+    if (!b) return;
+    active = b.dataset.cat;
+    chips.querySelectorAll("[data-cat]").forEach((n) => n.classList.toggle("ok", n.dataset.cat === active));
+    draw();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  draw();
+})();
+</script>
+</body>
+</html>

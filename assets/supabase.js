@@ -295,11 +295,22 @@
 
   SB.load = async function () {
     const g = (q) => SB.rest(q).catch(() => []);
+    // the API returns at most 1,000 rows per request, so walk the photo library in pages
+    const allPhotos = async () => {
+      const out = [];
+      const PAGE = 1000;
+      for (let from = 0; from < 8000; from += PAGE) {
+        const page = await g(`vehicle_photos?select=category,brand,model,url,credit,license,source_url&order=id&limit=${PAGE}&offset=${from}`);
+        out.push(...page);
+        if (page.length < PAGE) break;
+      }
+      return out;
+    };
     const [countries, currencies, taxRules, routes, suppliers, vehicles, profiles, photos] = await Promise.all([
       g("countries?select=*"), g("currencies?select=*"), g("tax_rules?select=*"),
       g("shipping_routes?select=*"), g("suppliers?select=*"), g("vehicles?select=*&order=created_at.desc"),
       g("profiles?select=*"),
-      g("vehicle_photos?select=category,brand,model,url,credit,license,source_url&limit=4000"),
+      allPhotos(),
     ]);
     const dest = {}, origins = [];
     for (const r of countries) {
